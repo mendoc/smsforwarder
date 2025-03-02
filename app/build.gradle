@@ -14,6 +14,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "BOT_TOKEN", "\"${System.getenv('BOT_TOKEN') ?: 'default_value'}\""
+        buildConfigField "String", "CHAT_ID", "\"${System.getenv('CHAT_ID') ?: 'default_value'}\""
     }
 
     buildTypes {
