@@ -6,6 +6,10 @@ android {
     namespace 'com.dimitriongoua.smsforwarder'
     compileSdk 33
 
+    buildFeatures {
+        buildConfig = true  // Ceci active explicitement BuildConfig
+    }
+
     defaultConfig {
         applicationId "com.dimitriongoua.smsforwarder"
         minSdk 24
