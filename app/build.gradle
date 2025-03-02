@@ -7,7 +7,7 @@ android {
     compileSdk 33
 
     buildFeatures {
-        buildConfig = true  // Ceci active explicitement BuildConfig
+        buildConfig = true
     }
 
     defaultConfig {
