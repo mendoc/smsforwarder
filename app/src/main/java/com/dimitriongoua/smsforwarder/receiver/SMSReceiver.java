@@ -1,6 +1,7 @@
 package com.dimitriongoua.smsforwarder.receiver;
 
 import static com.dimitriongoua.smsforwarder.config.Constants.KEY_SMS;
+import static com.dimitriongoua.smsforwarder.config.Constants.SMS_ADDRESS;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,14 +35,17 @@ public class SMSReceiver extends BroadcastReceiver {
                     Log.d(TAG, smsMessage.getMessageBody());
                 }
 
-                SMS newSMS = new SMS();
-                newSMS.setAddress(smsAddress);
-                newSMS.setBody(smsBody.toString());
-                newSMS.setTimestamp(smsTimestamp);
+                if (SMS_ADDRESS.toLowerCase().contains(smsAddress.toLowerCase())) {
+                    SMS newSMS = new SMS();
+                    newSMS.setAddress(smsAddress);
+                    newSMS.setBody(smsBody.toString());
+                    newSMS.setTimestamp(smsTimestamp);
 
-                Intent smsIntent = new Intent(context, SMSHandlerService.class);
-                smsIntent.putExtra(KEY_SMS, newSMS);
-                context.startService(smsIntent);
+                    Intent smsIntent = new Intent(context, SMSHandlerService.class);
+                    smsIntent.putExtra(KEY_SMS, newSMS);
+                    context.startService(smsIntent);
+                }
+
             }
         }
     }
