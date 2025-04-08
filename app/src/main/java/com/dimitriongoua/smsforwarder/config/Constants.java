@@ -7,5 +7,5 @@ public class Constants {
     public static final String CHAT_ID = BuildConfig.CHAT_ID;
     public static final String KEY_SMS = "sms_body";
 
-    public static final String SMS_ADDRESS = "AirtelMoney|Paypal|NETFLIX";
+    public static final String SMS_ADDRESS = "AirtelMoney|Paypal|NETFLIX|38643";
 }
