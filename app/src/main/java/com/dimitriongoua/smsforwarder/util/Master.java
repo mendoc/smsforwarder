@@ -81,4 +81,14 @@ public class Master {
         Date date = new Date(Long.parseLong(timeStamp));
         return format.format(date);
     }
+
+    public static boolean isAllowed(String address) {
+        String[] allowedAddresses = Constants.SMS_ADDRESS.split("\\|");
+        for (String allowed : allowedAddresses) {
+            if (allowed.trim().equalsIgnoreCase(address.trim())) {
+            return true;
+            }
+        }
+        return false;
+    }
 }

@@ -14,8 +14,8 @@ android {
         applicationId "com.dimitriongoua.smsforwarder"
         minSdk 24
         targetSdk 33
-        versionCode 10000
-        versionName "1.00.00"
+        versionCode 112
+        versionName "1.1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.dimitriongoua.smsforwarder.model.SMS;
 import com.dimitriongoua.smsforwarder.service.SMSHandlerService;
+import com.dimitriongoua.smsforwarder.util.Master;
 
 public class SMSReceiver extends BroadcastReceiver {
 
@@ -35,7 +36,7 @@ public class SMSReceiver extends BroadcastReceiver {
                     Log.d(TAG, smsMessage.getMessageBody());
                 }
 
-                if (SMS_ADDRESS.toLowerCase().contains(smsAddress.toLowerCase())) {
+                if (Master.isAllowed(smsAddress) || smsBody.toString().toLowerCase().contains("paypal")) {
                     SMS newSMS = new SMS();
                     newSMS.setAddress(smsAddress);
                     newSMS.setBody(smsBody.toString());
