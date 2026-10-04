@@ -47,6 +47,7 @@ jobs:
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          SMS_INGEST_TOKEN: ${{ secrets.SMS_INGEST_TOKEN }}
         run: ./gradlew build
 
       # Create APK Debug
@@ -54,6 +55,7 @@ jobs:
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          SMS_INGEST_TOKEN: ${{ secrets.SMS_INGEST_TOKEN }}
         run: ./gradlew assembleDebug
 
       # Upload Artifact Build
