@@ -3,6 +3,7 @@ package com.dimitriongoua.smsforwarder.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.provider.Settings.Secure;
 import android.text.TextUtils;
 
 import com.dimitriongoua.smsforwarder.config.Constants;
@@ -31,19 +32,29 @@ public class Settings {
     private static final String KEY_LAST_SYNC = "sync_last_success";
     private static final String KEY_LAST_CHECK = "sync_last_check";
 
+    private final Context context;
     private final SharedPreferences prefs;
 
     private Settings(Context context) {
-        prefs = context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        this.context = context.getApplicationContext();
+        prefs = this.context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
     public static Settings with(Context context) {
         return new Settings(context);
     }
 
-    /** Identifiant du téléphone, généré une seule fois : il distingue ses SIM côté Miango. */
+    /**
+     * Identifiant du téléphone : il distingue ses SIM côté Miango. Dérivé d'ANDROID_ID
+     * ({@link DeviceIdentity}), il reste le même après une désinstallation puis une
+     * réinstallation de l'application signée avec la même clé. Sans ANDROID_ID
+     * utilisable, un identifiant aléatoire est généré une fois et conservé.
+     */
     public synchronized String getDeviceId() {
-        String id = prefs.getString(KEY_DEVICE_ID, null);
+        String id = DeviceIdentity.fromAndroidId(
+                Secure.getString(context.getContentResolver(), Secure.ANDROID_ID), context.getPackageName());
+        if (id != null) return id;
+        id = prefs.getString(KEY_DEVICE_ID, null);
         if (id == null) {
             id = UUID.randomUUID().toString();
             prefs.edit().putString(KEY_DEVICE_ID, id).apply();
