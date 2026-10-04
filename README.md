@@ -58,3 +58,16 @@ Une coupure réseau touche le téléphone entier, donc toutes ses SIM. L'applica
 Déclenchement (JobScheduler, toujours avec réseau) : toutes les 15 minutes, au retour du réseau quand des envois restent à faire, au démarrage du téléphone, et par le bouton « Synchroniser maintenant » de l'écran principal, qui affiche aussi la dernière synchronisation réussie. Le journal indique les SMS envoyés lors d'une synchronisation (« synchro »).
 
 Aucun changement n'est nécessaire côté Miango : `/sms/incoming` ignore un SMS déjà enregistré (`dedup_hash`).
+
+## Identifiant du téléphone et signature de l'APK (v1.3.1)
+L'identifiant envoyé à Miango (`device.id`) est dérivé d'`ANDROID_ID`, haché, de la forme `a-<32 hex>`. Il reste le même après une désinstallation puis une réinstallation, **à condition que l'APK soit toujours signé avec la même clé**. Il ne change qu'après une réinitialisation du téléphone. Sans `ANDROID_ID` utilisable, un identifiant aléatoire est généré une fois.
+
+Pour une clé de signature fixe, créer une seule fois un keystore et le déclarer dans les secrets GitHub Actions :
+
+```bash
+keytool -genkeypair -v -keystore smsforwarder.keystore -alias smsforwarder \
+  -keyalg RSA -keysize 2048 -validity 10000
+base64 -w0 smsforwarder.keystore   # valeur du secret SIGNING_KEYSTORE_BASE64
+```
+
+Secrets : `SIGNING_KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS` (`smsforwarder`) et `SIGNING_KEY_PASSWORD`. Conserver le keystore en lieu sûr : quiconque le possède peut signer un APK capable de remplacer l'application, avec ses permissions SMS. Sans ces secrets, chaque build du CI est signé avec une clé de debug temporaire. L'APK ne peut alors pas mettre à jour le précédent, et l'identifiant change à chaque installation.

@@ -47,12 +47,31 @@ jobs:
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
+      # Clé de signature fixe (secret SIGNING_KEYSTORE_BASE64 + SIGNING_STORE_PASSWORD,
+      # SIGNING_KEY_ALIAS, SIGNING_KEY_PASSWORD) : l'APK met à jour le précédent sans
+      # désinstallation et l'identifiant du téléphone reste le même. Sans ce secret, clé de
+      # debug générée par le runner (différente à chaque build).
+      - name: Decode signing keystore
+        env:
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$SIGNING_KEYSTORE_BASE64" ]; then
+            echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/smsforwarder.keystore"
+            echo "SIGNING_KEYSTORE_PATH=$RUNNER_TEMP/smsforwarder.keystore" >> $GITHUB_ENV
+            echo "Clé de signature fixe utilisée."
+          else
+            echo "::warning::Secret SIGNING_KEYSTORE_BASE64 absent : APK signé avec une clé de debug temporaire."
+          fi
+
       # Run Build Project
       - name: Build gradle project
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
           SMS_INGEST_TOKEN: ${{ secrets.SMS_INGEST_TOKEN }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: ./gradlew build
 
       # Create APK Debug
@@ -61,6 +80,9 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
           SMS_INGEST_TOKEN: ${{ secrets.SMS_INGEST_TOKEN }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: ./gradlew assembleDebug
 
       # Renomme l'APK avec la version de l'application (versionName de app/build.gradle)
