@@ -13,6 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-*.jks
-.idea
-app/release
+/app/src/androidTest
+/.idea

@@ -1,5 +1,7 @@
 package com.dimitriongoua.smsforwarder.receiver;
 
+import static com.dimitriongoua.smsforwarder.config.Constants.KEY_SMS;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,10 +11,11 @@ import android.util.Log;
 
 import com.dimitriongoua.smsforwarder.model.SMS;
 import com.dimitriongoua.smsforwarder.service.SMSHandlerService;
-
-import static com.dimitriongoua.smsforwarder.config.Constants.KEY_SMS;
+import com.dimitriongoua.smsforwarder.util.SimResolver;
+import com.dimitriongoua.smsforwarder.util.Master;
 
 public class SMSReceiver extends BroadcastReceiver {
+
     private static final String TAG = SMSReceiver.class.getSimpleName();
     public static final String SMS_BUNDLE = "pdus";
 
@@ -29,18 +32,25 @@ public class SMSReceiver extends BroadcastReceiver {
                     SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sm);
                     smsBody.append(smsMessage.getMessageBody());
                     smsAddress = smsMessage.getOriginatingAddress();
-                    smsTimestamp = String.valueOf(smsMessage.getTimestampMillis());
+                    // Horodatage de la première partie, comme la colonne date_sent de la
+                    // boîte de réception : même empreinte pour la synchronisation.
+                    if (smsTimestamp.isEmpty()) smsTimestamp = String.valueOf(smsMessage.getTimestampMillis());
                     Log.d(TAG, smsMessage.getMessageBody());
                 }
 
-                SMS newSMS = new SMS();
-                newSMS.setAddress(smsAddress);
-                newSMS.setBody(smsBody.toString());
-                newSMS.setTimestamp(smsTimestamp);
+                if (Master.isAllowed(context, smsAddress, smsBody.toString())) {
+                    SMS newSMS = new SMS();
+                    newSMS.setAddress(smsAddress);
+                    newSMS.setBody(smsBody.toString());
+                    newSMS.setTimestamp(smsTimestamp);
+                    newSMS.setReceivedAt(System.currentTimeMillis());
+                    SimResolver.fill(context, newSMS, SimResolver.subscriptionIdFrom(intent));
 
-                Intent smsIntent = new Intent(context, SMSHandlerService.class);
-                smsIntent.putExtra(KEY_SMS, newSMS);
-                context.startService(smsIntent);
+                    Intent smsIntent = new Intent(context, SMSHandlerService.class);
+                    smsIntent.putExtra(KEY_SMS, newSMS);
+                    context.startService(smsIntent);
+                }
+
             }
         }
     }

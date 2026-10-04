@@ -1,18 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/device_section" />
+
+        <EditText
+            android:id="@+id/device_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:hint="@string/device_name_hint"
+            android:inputType="textCapSentences"
+            android:maxLength="100" />
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/sims_section" />
+
+        <TextView
+            style="@style/SettingsHelp"
+            android:text="@string/sims_help" />
+
+        <LinearLayout
+            android:id="@+id/sims_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/senders_section" />
+
+        <TextView
+            style="@style/SettingsHelp"
+            android:text="@string/senders_help" />
+
+        <EditText
+            android:id="@+id/allowed_senders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:gravity="top"
+            android:hint="@string/senders_hint"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:minLines="4" />
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/rules_section" />
+
+        <TextView
+            style="@style/SettingsHelp"
+            android:text="@string/rules_help" />
+
+        <EditText
+            android:id="@+id/filter_rules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:fontFamily="monospace"
+            android:gravity="top"
+            android:hint="@string/rules_hint"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:minLines="3" />
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/sync_section" />
+
+        <TextView
+            android:id="@+id/sync_status"
+            style="@style/SettingsHelp" />
+
+        <Button
+            android:id="@+id/sync_now"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/sync_now" />
+
+        <Button
+            android:id="@+id/open_destinations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/destinations_open" />
+
+        <Button
+            android:id="@+id/open_journal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/journal_open" />
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/save" />
+
+        <TextView
+            android:id="@+id/app_version"
+            style="@style/SettingsHelp"
+            android:layout_marginTop="24dp"
+            android:gravity="center" />
+    </LinearLayout>
+</ScrollView>

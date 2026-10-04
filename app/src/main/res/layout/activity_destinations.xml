@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.DestinationsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:layout_marginTop="0dp"
+            android:text="@string/urls_section" />
+
+        <TextView
+            style="@style/SettingsHelp"
+            android:text="@string/urls_help" />
+
+        <LinearLayout
+            android:id="@+id/url_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/add_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/url_add" />
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/telegram_section" />
+
+        <CheckBox
+            android:id="@+id/telegram_enabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/destination_enabled" />
+
+        <TextView
+            android:id="@+id/telegram_token_status"
+            style="@style/SettingsHelp" />
+
+        <EditText
+            android:id="@+id/telegram_token"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:hint="@string/telegram_token_hint"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/telegram_chat_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:hint="@string/telegram_chat_hint"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/save_telegram"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/save" />
+    </LinearLayout>
+</ScrollView>
