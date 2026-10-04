@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.dimitriongoua.smsforwarder.BuildConfig;
 import com.dimitriongoua.smsforwarder.R;
 import com.dimitriongoua.smsforwarder.util.Settings;
 import com.dimitriongoua.smsforwarder.util.SimResolver;
@@ -27,6 +28,7 @@ import java.util.Map;
 
 /**
  * Écran de paramétrage : nom du téléphone, nom de chaque SIM et expéditeurs autorisés.
+ * La version installée est affichée en pied de page.
  */
 public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST = 10055;
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
         deviceName.setText(settings.getDeviceName());
         allowedSenders.setText(TextUtils.join("\n", settings.getAllowedSenders()));
         renderSims();
+        ((TextView) findViewById(R.id.app_version)).setText(
+                getString(R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
 
         if (!hasAllPermissions()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, MY_PERMISSIONS_REQUEST);

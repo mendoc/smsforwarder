@@ -12,4 +12,5 @@
     <string name="senders_hint">AirtelMoney</string>
     <string name="save">Enregistrer</string>
     <string name="saved">Paramètres enregistrés</string>
+    <string name="app_version">Version %1$s (%2$d)</string>
 </resources>
