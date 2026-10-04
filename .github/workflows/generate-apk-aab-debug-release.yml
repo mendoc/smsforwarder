@@ -13,6 +13,11 @@ on:
     branches:
       - 'release/**'
 
+  # Vérifie aussi que l'APK compile sur chaque PR visant une branche de release
+  pull_request:
+    branches:
+      - 'release/**'
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
