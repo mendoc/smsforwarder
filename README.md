@@ -34,7 +34,7 @@ Un SMS est relayé si aucune règle d'exclusion ne correspond, **et** si son exp
 ## Destinations configurables (v1.3.0)
 Écran « Destinations des SMS » :
 - **URL** : liste éditable (ajouter, modifier, supprimer, activer ou désactiver). URL absolue `http(s)://…` validée à l'enregistrement, en-tête de sécurité optionnel (nom et valeur, valeur jamais réaffichée). Toutes les URL reçoivent le format complet `{ from, body, timestamp, sim, device }` ; `/smshandler` n'en lit que `from`, `body` et `timestamp`.
-- **Telegram** : token du bot, identifiant de la conversation, activation.
+- **Telegram** : token du bot, identifiant de la conversation, activation. Message en texte brut : corps du SMS, ligne vide, expéditeur, puis SIM (nom donné dans l'app, sinon « SIM n · opérateur ») et téléphone, et enfin la date (v1.3.2).
 
 Valeurs par défaut (installation ou mise à jour depuis la v1.2.0, sans action) : `https://miango.netlify.app/smshandler` sans en-tête, `https://miango.netlify.app/sms/incoming` avec `X-Sms-Token` = `SMS_INGEST_TOKEN` du build, et Telegram avec `BOT_TOKEN` / `CHAT_ID` du build.
 
