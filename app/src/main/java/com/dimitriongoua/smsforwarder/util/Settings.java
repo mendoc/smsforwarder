@@ -6,6 +6,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.dimitriongoua.smsforwarder.config.Constants;
+import com.dimitriongoua.smsforwarder.filter.SmsFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,8 @@ import java.util.UUID;
 
 /**
  * Paramètres de l'application, modifiables depuis l'écran principal et conservés sur le
- * téléphone : nom du téléphone, expéditeurs autorisés et nom de chaque SIM.
+ * téléphone : nom du téléphone, expéditeurs autorisés, règles de filtrage avancées et nom
+ * de chaque SIM.
  *
  * Le nom d'une SIM saisi ici est envoyé à Miango comme nom par défaut ; un renommage dans
  * la console Miango reste prioritaire à l'affichage.
@@ -23,6 +25,7 @@ public class Settings {
     private static final String KEY_DEVICE_ID = "device_id";
     private static final String KEY_DEVICE_NAME = "device_name";
     private static final String KEY_ALLOWED_SENDERS = "allowed_senders";
+    private static final String KEY_FILTER_RULES = "filter_rules";
     private static final String KEY_SIM_NAME_PREFIX = "sim_name_";
 
     private final SharedPreferences prefs;
@@ -71,12 +74,31 @@ public class Settings {
         prefs.edit().putString(KEY_ALLOWED_SENDERS, TextUtils.join("|", clean)).apply();
     }
 
-    public boolean isAllowedSender(String address) {
-        if (address == null) return false;
-        for (String allowed : getAllowedSenders()) {
-            if (allowed.equalsIgnoreCase(address.trim())) return true;
+    /**
+     * Règles avancées, une regex par ligne (syntaxe dans FilterRule). Liste de départ :
+     * {@link SmsFilter#DEFAULT_RULES}, qui remplace la règle « paypal » de la v1.2.0.
+     */
+    public List<String> getFilterRules() {
+        String raw = prefs.getString(KEY_FILTER_RULES, SmsFilter.DEFAULT_RULES);
+        List<String> rules = new ArrayList<>();
+        for (String rule : raw.split("\\n")) {
+            if (!rule.trim().isEmpty()) rules.add(rule.trim());
         }
-        return false;
+        return rules;
+    }
+
+    /** Enregistre des règles déjà validées par {@link SmsFilter#validate(List)}. */
+    public void setFilterRules(List<String> rules) {
+        List<String> clean = new ArrayList<>();
+        for (String rule : rules) {
+            if (rule != null && !rule.trim().isEmpty()) clean.add(rule.trim());
+        }
+        prefs.edit().putString(KEY_FILTER_RULES, TextUtils.join("\n", clean)).apply();
+    }
+
+    /** Filtre appliqué à chaque SMS : expéditeurs autorisés et règles avancées. */
+    public SmsFilter getFilter() {
+        return SmsFilter.fromSettings(getAllowedSenders(), getFilterRules());
     }
 
     /** Nom donné à la SIM dans l'application (null si aucun). */

@@ -1,7 +1,6 @@
 package com.dimitriongoua.smsforwarder.receiver;
 
 import static com.dimitriongoua.smsforwarder.config.Constants.KEY_SMS;
-import static com.dimitriongoua.smsforwarder.config.Constants.SMS_ADDRESS;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,7 +36,7 @@ public class SMSReceiver extends BroadcastReceiver {
                     Log.d(TAG, smsMessage.getMessageBody());
                 }
 
-                if (Master.isAllowed(context, smsAddress) || smsBody.toString().toLowerCase().contains("paypal")) {
+                if (Master.isAllowed(context, smsAddress, smsBody.toString())) {
                     SMS newSMS = new SMS();
                     newSMS.setAddress(smsAddress);
                     newSMS.setBody(smsBody.toString());

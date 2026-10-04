@@ -56,6 +56,25 @@
             android:inputType="textMultiLine|textNoSuggestions"
             android:minLines="4" />
 
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/rules_section" />
+
+        <TextView
+            style="@style/SettingsHelp"
+            android:text="@string/rules_help" />
+
+        <EditText
+            android:id="@+id/filter_rules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:fontFamily="monospace"
+            android:gravity="top"
+            android:hint="@string/rules_hint"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:minLines="3" />
+
         <Button
             android:id="@+id/save"
             android:layout_width="match_parent"

@@ -13,6 +13,19 @@ Chaque SMS relayé est aussi envoyé à `POST https://miango.netlify.app/sms/inc
 L'écran principal permet de régler :
 - le nom du téléphone ;
 - le nom de chaque SIM active (envoyé par défaut ; un renommage dans la console Miango reste prioritaire) ;
-- la liste des expéditeurs autorisés (un par ligne). Les SMS contenant « paypal » sont toujours relayés.
+- la liste des expéditeurs autorisés (un par ligne) ;
+- les règles avancées (v1.3.0), décrites ci-dessous.
 
 La permission « Téléphone » (`READ_PHONE_STATE`) sert à identifier la SIM (emplacement, opérateur, numéro).
+
+## Règles de filtrage avancées (v1.3.0)
+Une regex par ligne, en plus de la liste des expéditeurs autorisés :
+
+| Règle | S'applique à |
+|---|---|
+| `from:<regex>` | l'expéditeur |
+| `body:<regex>` | le corps du SMS |
+| `<regex>` (sans préfixe) | l'expéditeur **ou** le corps |
+| `!` en tête (`!body:<regex>`, `!from:<regex>`, `!<regex>`) | règle d'**exclusion** |
+
+Un SMS est relayé si aucune règle d'exclusion ne correspond, **et** si son expéditeur est dans la liste ou si au moins une règle d'inclusion correspond. La regex est cherchée n'importe où dans le texte (`^` et `$` restent possibles). Règle par défaut : `body:(?i)paypal`, qui reprend le comportement de la v1.2.0. Une regex invalide est refusée à l'enregistrement.

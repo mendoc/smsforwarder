@@ -111,8 +111,8 @@ public class Master {
         return format.format(date);
     }
 
-    /** Expéditeur présent dans la liste configurée dans l'application. */
-    public static boolean isAllowed(Context context, String address) {
-        return Settings.with(context).isAllowedSender(address);
+    /** SMS à relayer selon les expéditeurs autorisés et les règles avancées. */
+    public static boolean isAllowed(Context context, String address, String body) {
+        return Settings.with(context).getFilter().accepts(address, body);
     }
 }
