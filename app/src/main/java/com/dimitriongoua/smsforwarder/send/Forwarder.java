@@ -158,22 +158,6 @@ public class Forwarder {
         return outcome;
     }
 
-    /** Plusieurs essais rapprochés tant que la destination ne répond pas. */
-    public SendOutcome deliver(Target target, long... waitsMs) {
-        SendOutcome outcome = send(target);
-        for (long wait : waitsMs) {
-            if (!outcome.shouldRetry()) break;
-            try {
-                Thread.sleep(wait);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-            outcome = send(target);
-        }
-        return outcome;
-    }
-
     private SendOutcome fromError(Throwable cause) {
         if (cause instanceof VolleyError) {
             VolleyError error = (VolleyError) cause;

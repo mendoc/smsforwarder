@@ -41,6 +41,7 @@ public class SMSReceiver extends BroadcastReceiver {
                     newSMS.setAddress(smsAddress);
                     newSMS.setBody(smsBody.toString());
                     newSMS.setTimestamp(smsTimestamp);
+                    newSMS.setReceivedAt(System.currentTimeMillis());
                     SimResolver.fill(context, newSMS, SimResolver.subscriptionIdFrom(intent));
 
                     Intent smsIntent = new Intent(context, SMSHandlerService.class);

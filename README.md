@@ -43,3 +43,6 @@ Chaque SMS relayé part vers toutes les destinations actives, l'une après l'aut
 - pas de réponse (réseau absent, délai dépassé) : nouvelles tentatives.
 
 Les secrets (valeurs d'en-tête, token du bot) ne sont jamais écrits dans les logs.
+
+## Journal des SMS (v1.3.0)
+L'écran « Journal des SMS » liste les SMS relayés ces **30 derniers jours** (SQLite local, purge automatique), du plus récent au plus ancien, avec un chargement progressif en fin de liste. Chaque entrée affiche la date de réception, l'expéditeur, la SIM et un extrait (texte complet en touchant l'entrée), puis, pour chaque destination : statut (`envoyé`, `en échec`, `nouvelle tentative`, `en attente`), nombre d'essais, date du dernier essai et erreur. Le journal ne contient aucun secret (URL sans paramètres, erreurs masquées).

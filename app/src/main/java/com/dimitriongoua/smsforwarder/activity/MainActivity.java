@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.save).setOnClickListener(v -> save());
         findViewById(R.id.open_destinations).setOnClickListener(v ->
                 startActivity(new Intent(this, DestinationsActivity.class)));
+        findViewById(R.id.open_journal).setOnClickListener(v ->
+                startActivity(new Intent(this, JournalActivity.class)));
 
         deviceName.setText(settings.getDeviceName());
         allowedSenders.setText(TextUtils.join("\n", settings.getAllowedSenders()));

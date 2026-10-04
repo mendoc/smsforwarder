@@ -22,6 +22,8 @@ public class SMS implements Serializable {
     }
 
     public String timestamp;
+    // Heure de réception sur le téléphone (journal, synchronisation).
+    public long receivedAt;
 
     // SIM qui a reçu le SMS (SimResolver) : -1 et null quand l'information est inconnue.
     public int subscriptionId = -1;
@@ -75,6 +77,23 @@ public class SMS implements Serializable {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    /** Horodatage du centre SMS en millisecondes, 0 s'il est illisible. */
+    public long getTimestampMillis() {
+        try {
+            return Long.parseLong(timestamp);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public long getReceivedAt() {
+        return receivedAt;
+    }
+
+    public void setReceivedAt(long receivedAt) {
+        this.receivedAt = receivedAt;
     }
 
     public JSONObject toJSONObject() {

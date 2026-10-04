@@ -43,6 +43,11 @@
             android:parentActivityName=".activity.MainActivity" />
 
         <activity
+            android:name=".activity.JournalActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
             android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>

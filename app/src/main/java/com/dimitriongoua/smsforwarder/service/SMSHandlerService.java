@@ -7,13 +7,14 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.dimitriongoua.smsforwarder.journal.Delivery;
 import com.dimitriongoua.smsforwarder.model.SMS;
+import com.dimitriongoua.smsforwarder.send.Dispatcher;
 import com.dimitriongoua.smsforwarder.send.Forwarder;
-import com.dimitriongoua.smsforwarder.send.SendOutcome;
 
 /**
  * Relaie un SMS reçu vers toutes les destinations actives, l'une après l'autre, sur le
- * fil d'envoi de {@link Forwarder}.
+ * fil d'envoi de {@link Forwarder}. Chaque essai est tracé dans le journal.
  */
 public class SMSHandlerService extends Service {
     private static final String TAG = SMSHandlerService.class.getSimpleName();
@@ -35,11 +36,9 @@ public class SMSHandlerService extends Service {
         Log.d(TAG, "Réception du message par le service");
         Forwarder.EXECUTOR.execute(() -> {
             try {
-                Forwarder forwarder = Forwarder.with(this);
-                for (Forwarder.Target target : forwarder.targets(sms)) {
-                    SendOutcome outcome = forwarder.deliver(target, RETRY_WAITS_MS);
-                    Log.d(TAG, target.label + " → " + outcome);
-                }
+                Dispatcher.with(this).dispatch(sms, Delivery.VIA_RECEPTION, RETRY_WAITS_MS);
+            } catch (RuntimeException e) {
+                Log.e(TAG, "Relais du SMS impossible", e);
             } finally {
                 stopSelf(startId);
             }
