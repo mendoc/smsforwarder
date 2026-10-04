@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <!-- Identifier la SIM qui reçoit un SMS (emplacement, opérateur, numéro) pour Miango. -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- Synchronisation des SMS manqués après un redémarrage du téléphone. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -26,6 +28,20 @@
             android:name=".service.SMSHandlerService"
             android:enabled="true"
             android:exported="true" />
+
+        <service
+            android:name=".sync.SyncJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".receiver.SMSReceiver"

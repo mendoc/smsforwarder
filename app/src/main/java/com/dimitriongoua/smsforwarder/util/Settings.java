@@ -27,6 +27,9 @@ public class Settings {
     private static final String KEY_ALLOWED_SENDERS = "allowed_senders";
     private static final String KEY_FILTER_RULES = "filter_rules";
     private static final String KEY_SIM_NAME_PREFIX = "sim_name_";
+    private static final String KEY_SYNC_ORIGIN = "sync_origin";
+    private static final String KEY_LAST_SYNC = "sync_last_success";
+    private static final String KEY_LAST_CHECK = "sync_last_check";
 
     private final SharedPreferences prefs;
 
@@ -109,5 +112,30 @@ public class Settings {
 
     public void setSimName(int subscriptionId, String name) {
         prefs.edit().putString(KEY_SIM_NAME_PREFIX + subscriptionId, name == null ? "" : name.trim()).apply();
+    }
+
+    /** Réception du premier SMS envoyé avec succès (0 tant qu'il n'y en a pas). */
+    public long getSyncOrigin() {
+        return prefs.getLong(KEY_SYNC_ORIGIN, 0);
+    }
+
+    /** Fixe le point de départ de la synchronisation, une seule fois. */
+    public synchronized void initSyncOrigin(long receivedAt) {
+        if (getSyncOrigin() > 0 || receivedAt <= 0) return;
+        prefs.edit().putLong(KEY_SYNC_ORIGIN, receivedAt).putLong(KEY_LAST_SYNC, receivedAt).apply();
+    }
+
+    /** Horodatage de la dernière synchronisation réussie (0 si aucune). */
+    public long getLastSync() {
+        return prefs.getLong(KEY_LAST_SYNC, 0);
+    }
+
+    /** Dernière vérification, réussie ou non (0 si aucune). */
+    public long getLastCheck() {
+        return prefs.getLong(KEY_LAST_CHECK, 0);
+    }
+
+    public void setSyncResult(long lastSync, long checkedAt) {
+        prefs.edit().putLong(KEY_LAST_SYNC, lastSync).putLong(KEY_LAST_CHECK, checkedAt).apply();
     }
 }

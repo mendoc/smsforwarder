@@ -4,8 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.telephony.SubscriptionInfo;
 import android.text.TextUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,6 +23,11 @@ import com.dimitriongoua.smsforwarder.BuildConfig;
 import com.dimitriongoua.smsforwarder.R;
 import com.dimitriongoua.smsforwarder.filter.InvalidRuleException;
 import com.dimitriongoua.smsforwarder.filter.SmsFilter;
+import com.dimitriongoua.smsforwarder.journal.JournalDb;
+import com.dimitriongoua.smsforwarder.journal.JournalFormat;
+import com.dimitriongoua.smsforwarder.send.Forwarder;
+import com.dimitriongoua.smsforwarder.sync.SyncEngine;
+import com.dimitriongoua.smsforwarder.sync.SyncScheduler;
 import com.dimitriongoua.smsforwarder.util.Settings;
 import com.dimitriongoua.smsforwarder.util.SimResolver;
 
@@ -28,10 +36,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Écran de paramétrage : nom du téléphone, nom de chaque SIM, expéditeurs autorisés et
- * règles de filtrage avancées.
+ * règles de filtrage avancées. Affiche aussi l'état de la synchronisation des SMS manqués.
  * La version installée est affichée en pied de page.
  */
 public class MainActivity extends AppCompatActivity {
@@ -48,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText filterRules;
     private LinearLayout simsContainer;
     private final Map<Integer, EditText> simNames = new HashMap<>();
+    private final Handler main = new Handler(Looper.getMainLooper());
+    // Lecture de l'état sans attendre les envois en cours sur Forwarder.EXECUTOR.
+    private static final ExecutorService READER = Executors.newSingleThreadExecutor();
+    private TextView syncStatus;
+    private Button syncNow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, DestinationsActivity.class)));
         findViewById(R.id.open_journal).setOnClickListener(v ->
                 startActivity(new Intent(this, JournalActivity.class)));
+        syncStatus = findViewById(R.id.sync_status);
+        syncNow = findViewById(R.id.sync_now);
+        syncNow.setOnClickListener(v -> syncNow());
+        SyncScheduler.ensurePeriodic(this);
 
         deviceName.setText(settings.getDeviceName());
         allowedSenders.setText(TextUtils.join("\n", settings.getAllowedSenders()));
@@ -75,6 +95,57 @@ public class MainActivity extends AppCompatActivity {
         if (!hasAllPermissions()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, MY_PERMISSIONS_REQUEST);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        renderSyncStatus();
+    }
+
+    /** Dernière synchronisation réussie, dernière vérification et envois en attente. */
+    private void renderSyncStatus() {
+        READER.execute(() -> {
+            int open = JournalDb.get(this).countOpen();
+            main.post(() -> {
+                if (isFinishing()) return;
+                TimeZone zone = TimeZone.getDefault();
+                List<String> lines = new ArrayList<>();
+                if (settings.getLastSync() > 0) {
+                    lines.add(getString(R.string.sync_last, JournalFormat.dateTime(settings.getLastSync(), zone)));
+                } else {
+                    lines.add(getString(R.string.sync_never));
+                }
+                if (settings.getLastCheck() > 0) {
+                    lines.add(getString(R.string.sync_checked, JournalFormat.dateTime(settings.getLastCheck(), zone)));
+                }
+                if (open > 0) lines.add(getString(R.string.sync_open, open));
+                syncStatus.setText(TextUtils.join("\n", lines));
+            });
+        });
+    }
+
+    private void syncNow() {
+        syncNow.setEnabled(false);
+        syncStatus.setText(R.string.sync_running);
+        Forwarder.EXECUTOR.execute(() -> {
+            String message;
+            try {
+                SyncEngine.Result result = SyncEngine.with(this).run();
+                if (result.open > 0) SyncScheduler.scheduleRetry(this);
+                message = getString(R.string.sync_done, result.recovered, result.open);
+            } catch (RuntimeException e) {
+                SyncScheduler.scheduleRetry(this);
+                message = getString(R.string.sync_failed);
+            }
+            final String text = message;
+            main.post(() -> {
+                if (isFinishing()) return;
+                syncNow.setEnabled(true);
+                Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+                renderSyncStatus();
+            });
+        });
     }
 
     private boolean hasAllPermissions() {

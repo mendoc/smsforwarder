@@ -11,6 +11,7 @@ import com.dimitriongoua.smsforwarder.journal.Delivery;
 import com.dimitriongoua.smsforwarder.model.SMS;
 import com.dimitriongoua.smsforwarder.send.Dispatcher;
 import com.dimitriongoua.smsforwarder.send.Forwarder;
+import com.dimitriongoua.smsforwarder.sync.SyncScheduler;
 
 /**
  * Relaie un SMS reçu vers toutes les destinations actives, l'une après l'autre, sur le
@@ -36,7 +37,10 @@ public class SMSHandlerService extends Service {
         Log.d(TAG, "Réception du message par le service");
         Forwarder.EXECUTOR.execute(() -> {
             try {
-                Dispatcher.with(this).dispatch(sms, Delivery.VIA_RECEPTION, RETRY_WAITS_MS);
+                boolean done = Dispatcher.with(this).dispatch(sms, Delivery.VIA_RECEPTION, RETRY_WAITS_MS);
+                // Pas de réseau : la synchronisation reprendra les envois à son retour.
+                if (!done) SyncScheduler.scheduleRetry(this);
+                SyncScheduler.ensurePeriodic(this);
             } catch (RuntimeException e) {
                 Log.e(TAG, "Relais du SMS impossible", e);
             } finally {

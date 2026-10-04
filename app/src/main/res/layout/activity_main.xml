@@ -75,6 +75,21 @@
             android:inputType="textMultiLine|textNoSuggestions"
             android:minLines="3" />
 
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/sync_section" />
+
+        <TextView
+            android:id="@+id/sync_status"
+            style="@style/SettingsHelp" />
+
+        <Button
+            android:id="@+id/sync_now"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/sync_now" />
+
         <Button
             android:id="@+id/open_destinations"
             android:layout_width="match_parent"

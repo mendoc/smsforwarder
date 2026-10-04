@@ -32,7 +32,9 @@ public class SMSReceiver extends BroadcastReceiver {
                     SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sm);
                     smsBody.append(smsMessage.getMessageBody());
                     smsAddress = smsMessage.getOriginatingAddress();
-                    smsTimestamp = String.valueOf(smsMessage.getTimestampMillis());
+                    // Horodatage de la première partie, comme la colonne date_sent de la
+                    // boîte de réception : même empreinte pour la synchronisation.
+                    if (smsTimestamp.isEmpty()) smsTimestamp = String.valueOf(smsMessage.getTimestampMillis());
                     Log.d(TAG, smsMessage.getMessageBody());
                 }
 

@@ -46,3 +46,14 @@ Les secrets (valeurs d'en-tête, token du bot) ne sont jamais écrits dans les l
 
 ## Journal des SMS (v1.3.0)
 L'écran « Journal des SMS » liste les SMS relayés ces **30 derniers jours** (SQLite local, purge automatique), du plus récent au plus ancien, avec un chargement progressif en fin de liste. Chaque entrée affiche la date de réception, l'expéditeur, la SIM et un extrait (texte complet en touchant l'entrée), puis, pour chaque destination : statut (`envoyé`, `en échec`, `nouvelle tentative`, `en attente`), nombre d'essais, date du dernier essai et erreur. Le journal ne contient aucun secret (URL sans paramètres, erreurs masquées).
+
+## Synchronisation des SMS manqués (v1.3.0)
+Une coupure réseau touche le téléphone entier, donc toutes ses SIM. L'application garde l'**horodatage de la dernière synchronisation réussie** et vérifie que tous les SMS reçus depuis ont été relayés :
+1. **Point de départ** : la réception du premier SMS envoyé avec succès. Les SMS antérieurs ne sont jamais repris.
+2. Les envois du journal encore `en attente` ou `nouvelle tentative` sont refaits, destination par destination. Un envoi `envoyé` n'est jamais refait.
+3. La boîte de réception (`content://sms/inbox`, toutes SIM, colonne `sub_id`) est lue depuis la dernière synchronisation réussie, avec une marge de 2 minutes. Un SMS retenu par les filtres (expéditeurs et règles avancées) et absent du journal est relayé. Il est reconnu par une empreinte (expéditeur, horodatage du centre SMS, corps), complétée par une comparaison expéditeur + corps à 10 minutes près.
+4. La dernière synchronisation réussie n'avance que jusqu'au plus ancien SMS encore non synchronisé. Un envoi sans réponse depuis plus de 7 jours est abandonné (marqué `en échec`).
+
+Déclenchement (JobScheduler, toujours avec réseau) : toutes les 15 minutes, au retour du réseau quand des envois restent à faire, au démarrage du téléphone, et par le bouton « Synchroniser maintenant » de l'écran principal, qui affiche aussi la dernière synchronisation réussie. Le journal indique les SMS envoyés lors d'une synchronisation (« synchro »).
+
+Aucun changement n'est nécessaire côté Miango : `/sms/incoming` ignore un SMS déjà enregistré (`dedup_hash`).

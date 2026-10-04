@@ -55,6 +55,9 @@ public class Dispatcher {
             if (status != null && !status.isOpen()) continue;
             done &= deliver(smsId, target, via, waits);
         }
+        if (journal.count(smsId, DeliveryStatus.SENT) > 0) {
+            Settings.with(context).initSyncOrigin(sms.getReceivedAt());
+        }
         return done;
     }
 

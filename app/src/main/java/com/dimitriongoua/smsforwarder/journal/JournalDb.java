@@ -128,12 +128,44 @@ public class JournalDb extends SQLiteOpenHelper {
         return findId(getReadableDatabase(), fingerprint);
     }
 
+    /**
+     * Le journal contient-il déjà ce SMS (même expéditeur et même corps, reçu à moins de
+     * {@code windowMs} près) ? Filet de sécurité si l'horodatage diffère entre la réception
+     * et la boîte de réception.
+     */
+    public boolean containsSimilar(String sender, String body, long receivedAt, long windowMs) {
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+                "SELECT 1 FROM sms WHERE sender = ? AND body = ? AND received_at BETWEEN ? AND ? LIMIT 1",
+                new String[]{sender == null ? "" : sender, body == null ? "" : body,
+                        String.valueOf(receivedAt - windowMs), String.valueOf(receivedAt + windowMs)})) {
+            return cursor.moveToFirst();
+        }
+    }
+
     /** Statut d'envoi d'un SMS vers une destination, null si aucune ligne. */
     public DeliveryStatus status(long smsId, String destinationKey) {
         try (Cursor cursor = getReadableDatabase().rawQuery(
                 "SELECT status FROM delivery WHERE sms_id = ? AND dest_key = ?",
                 new String[]{String.valueOf(smsId), destinationKey})) {
             return cursor.moveToFirst() ? DeliveryStatus.fromCode(cursor.getString(0)) : null;
+        }
+    }
+
+    /** Nombre de destinations du SMS dans ce statut. */
+    public int count(long smsId, DeliveryStatus status) {
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+                "SELECT COUNT(*) FROM delivery WHERE sms_id = ? AND status = ?",
+                new String[]{String.valueOf(smsId), status.code})) {
+            return cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        }
+    }
+
+    /** Envois encore à faire (en attente ou à retenter), tous SMS confondus. */
+    public int countOpen() {
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+                "SELECT COUNT(*) FROM delivery WHERE status IN (?, ?)",
+                new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            return cursor.moveToFirst() ? cursor.getInt(0) : 0;
         }
     }
 
