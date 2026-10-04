@@ -117,7 +117,11 @@ public class Forwarder {
     }
 
     private Target telegramTarget(TelegramDestination telegram, SMS sms) {
-        String message = sms.getBody() + "\n\n" + sms.getAddress() + "\n" + formatTime(sms.getTimestamp());
+        Settings settings = Settings.with(context);
+        String simLabel = TelegramMessage.simLabel(
+                settings.getSimName(sms.getSubscriptionId()), sms.getSimSlot(), sms.getSimCarrier());
+        String message = TelegramMessage.format(sms.getBody(), sms.getAddress(), simLabel,
+                settings.getDeviceName(), formatTime(sms.getTimestamp()));
         JSONObject body = new JSONObject();
         try {
             body.put("chat_id", telegram.getChatId());
