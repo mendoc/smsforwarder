@@ -13,10 +13,10 @@ on:
     branches:
       - 'release/**'
 
-  # Vérifie aussi que l'APK compile sur chaque PR visant une branche de release
+  # Le développement se fait sur main via des PR : chaque PR compile l'APK (artefact joint)
   pull_request:
     branches:
-      - 'release/**'
+      - 'main'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

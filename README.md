@@ -1,3 +1,9 @@
+SMS Forwarder est une application mobile permettant de transférer les SMS reçus d’un téléphone vers une autre destination.
+
+## Flux de travail
+- Le développement se fait sur `main`, par des PR. Chaque PR vers `main` compile l’APK de debug et le joint en artefact (GitHub Actions).
+- Pour chaque livraison, une branche `release/x.y.z` est créée depuis `main` : le push sur `release/**` produit l’APK.
+- Le workflow peut aussi être lancé à la main (onglet Actions).
 
 ## Outil « SMS » de la console Miango (v1.2.0)
 Chaque SMS relayé est aussi envoyé à `POST https://miango.netlify.app/sms/incoming`, avec la SIM qui l'a reçu, pour être consultable dans la console Miango (Outils → SMS) :
