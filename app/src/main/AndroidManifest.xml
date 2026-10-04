@@ -38,6 +38,11 @@
         </receiver>
 
         <activity
+            android:name=".activity.DestinationsActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
             android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>

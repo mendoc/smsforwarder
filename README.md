@@ -29,3 +29,17 @@ Une regex par ligne, en plus de la liste des expéditeurs autorisés :
 | `!` en tête (`!body:<regex>`, `!from:<regex>`, `!<regex>`) | règle d'**exclusion** |
 
 Un SMS est relayé si aucune règle d'exclusion ne correspond, **et** si son expéditeur est dans la liste ou si au moins une règle d'inclusion correspond. La regex est cherchée n'importe où dans le texte (`^` et `$` restent possibles). Règle par défaut : `body:(?i)paypal`, qui reprend le comportement de la v1.2.0. Une regex invalide est refusée à l'enregistrement.
+
+## Destinations configurables (v1.3.0)
+Écran « Destinations des SMS » :
+- **URL** : liste éditable (ajouter, modifier, supprimer, activer ou désactiver). URL absolue `http(s)://…` validée à l'enregistrement, en-tête de sécurité optionnel (nom et valeur, valeur jamais réaffichée). Toutes les URL reçoivent le format complet `{ from, body, timestamp, sim, device }` ; `/smshandler` n'en lit que `from`, `body` et `timestamp`.
+- **Telegram** : token du bot, identifiant de la conversation, activation.
+
+Valeurs par défaut (installation ou mise à jour depuis la v1.2.0, sans action) : `https://miango.netlify.app/smshandler` sans en-tête, `https://miango.netlify.app/sms/incoming` avec `X-Sms-Token` = `SMS_INGEST_TOKEN` du build, et Telegram avec `BOT_TOKEN` / `CHAT_ID` du build.
+
+Chaque SMS relayé part vers toutes les destinations actives, l'une après l'autre. Résultat d'un envoi :
+- réponse 2xx : envoyé ;
+- réponse d'erreur (4xx, 5xx) : en échec, **sans nouvel envoi automatique**. `/smshandler` répond 500 aux SMS qui ne viennent pas d'AirtelMoney, et peut avoir déjà mis à jour le solde avant une erreur ;
+- pas de réponse (réseau absent, délai dépassé) : nouvelles tentatives.
+
+Les secrets (valeurs d'en-tête, token du bot) ne sont jamais écrits dans les logs.

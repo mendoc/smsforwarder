@@ -76,6 +76,13 @@
             android:minLines="3" />
 
         <Button
+            android:id="@+id/open_destinations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/destinations_open" />
+
+        <Button
             android:id="@+id/save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

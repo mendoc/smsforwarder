@@ -1,6 +1,7 @@
 package com.dimitriongoua.smsforwarder.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         filterRules = findViewById(R.id.filter_rules);
         simsContainer = findViewById(R.id.sims_container);
         findViewById(R.id.save).setOnClickListener(v -> save());
+        findViewById(R.id.open_destinations).setOnClickListener(v ->
+                startActivity(new Intent(this, DestinationsActivity.class)));
 
         deviceName.setText(settings.getDeviceName());
         allowedSenders.setText(TextUtils.join("\n", settings.getAllowedSenders()));
