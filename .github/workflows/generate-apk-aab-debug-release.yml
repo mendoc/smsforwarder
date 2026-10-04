@@ -63,10 +63,21 @@ jobs:
           SMS_INGEST_TOKEN: ${{ secrets.SMS_INGEST_TOKEN }}
         run: ./gradlew assembleDebug
 
-      # Upload Artifact Build
-      # Noted For Output [main_project_module]/build/outputs/apk/debug/
+      # Renomme l'APK avec la version de l'application (versionName de app/build.gradle)
+      - name: Rename APK with app version
+        run: |
+          version=$(sed -n 's/^[[:space:]]*versionName[[:space:]]*"\([^"]*\)".*/\1/p' ${{ env.main_project_module }}/build.gradle | head -n 1)
+          if [ -z "$version" ]; then echo "versionName introuvable dans ${{ env.main_project_module }}/build.gradle" >&2; exit 1; fi
+          apk=$(ls ${{ env.main_project_module }}/build/outputs/apk/debug/*.apk | head -n 1)
+          mkdir -p dist
+          cp "$apk" "dist/sms-forwarder-$version.apk"
+          echo "apk_name=sms-forwarder-$version" >> $GITHUB_ENV
+          ls -l dist
+
+      # Upload Artifact Build : artefact sms-forwarder-<version> contenant sms-forwarder-<version>.apk
       - name: Upload APK Debug - ${{ env.repository_name }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) debug generated
-          path: ${{ env.main_project_module }}/build/outputs/apk/debug/
+          name: ${{ env.apk_name }}
+          path: dist/${{ env.apk_name }}.apk
+          if-no-files-found: error
