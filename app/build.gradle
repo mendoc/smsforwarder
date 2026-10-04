@@ -14,13 +14,15 @@ android {
         applicationId "com.dimitriongoua.smsforwarder"
         minSdk 24
         targetSdk 33
-        versionCode 112
-        versionName "1.1.2"
+        versionCode 120
+        versionName "1.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "BOT_TOKEN", "\"${System.getenv('BOT_TOKEN') ?: 'default_value'}\""
         buildConfigField "String", "CHAT_ID", "\"${System.getenv('CHAT_ID') ?: 'default_value'}\""
+        // Secret de POST /sms/incoming : même valeur que SMS_INGEST_TOKEN dans Netlify.
+        buildConfigField "String", "SMS_INGEST_TOKEN", "\"${System.getenv('SMS_INGEST_TOKEN') ?: 'default_value'}\""
     }
 
     buildTypes {

@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.dimitriongoua.smsforwarder.model.SMS;
 import com.dimitriongoua.smsforwarder.service.SMSHandlerService;
+import com.dimitriongoua.smsforwarder.util.SimResolver;
 import com.dimitriongoua.smsforwarder.util.Master;
 
 public class SMSReceiver extends BroadcastReceiver {
@@ -36,11 +37,12 @@ public class SMSReceiver extends BroadcastReceiver {
                     Log.d(TAG, smsMessage.getMessageBody());
                 }
 
-                if (Master.isAllowed(smsAddress) || smsBody.toString().toLowerCase().contains("paypal")) {
+                if (Master.isAllowed(context, smsAddress) || smsBody.toString().toLowerCase().contains("paypal")) {
                     SMS newSMS = new SMS();
                     newSMS.setAddress(smsAddress);
                     newSMS.setBody(smsBody.toString());
                     newSMS.setTimestamp(smsTimestamp);
+                    SimResolver.fill(context, newSMS, SimResolver.subscriptionIdFrom(intent));
 
                     Intent smsIntent = new Intent(context, SMSHandlerService.class);
                     smsIntent.putExtra(KEY_SMS, newSMS);

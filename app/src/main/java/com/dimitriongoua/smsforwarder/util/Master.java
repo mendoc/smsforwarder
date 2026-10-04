@@ -3,6 +3,8 @@ package com.dimitriongoua.smsforwarder.util;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -17,7 +19,9 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class Master {
     private static final String TAG = Master.class.getSimpleName();
@@ -52,6 +56,31 @@ public class Master {
         post(EndPoints.WEBHOOK_URL, params);
     }
 
+    /** Enregistre le SMS et sa SIM dans Miango (outil « SMS » de la console). */
+    public void forwardToInbox(SMS sms) {
+        Settings settings = Settings.with(context);
+        JSONObject params = sms.toInboxJSONObject(
+                settings.getDeviceId(),
+                settings.getDeviceName(),
+                settings.getSimName(sms.getSubscriptionId()));
+        Log.d(TAG, "POST: " + EndPoints.INBOX_URL);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
+                EndPoints.INBOX_URL,
+                params,
+                response -> Log.d(TAG, response.toString()),
+                error -> Log.e(TAG, "Envoi à Miango impossible : " + error)) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("X-Sms-Token", Constants.SMS_INGEST_TOKEN);
+                return headers;
+            }
+        };
+        // Réseau instable : nouvelles tentatives ; Miango ignore un SMS déjà enregistré.
+        request.setRetryPolicy(new DefaultRetryPolicy(15000, 4, 2f));
+        Volley.newRequestQueue(this.context).add(request);
+    }
+
     public void get(String url) {
         Log.d(TAG, "GET: " + url);
         RequestQueue queue = Volley.newRequestQueue(this.context);
@@ -82,13 +111,8 @@ public class Master {
         return format.format(date);
     }
 
-    public static boolean isAllowed(String address) {
-        String[] allowedAddresses = Constants.SMS_ADDRESS.split("\\|");
-        for (String allowed : allowedAddresses) {
-            if (allowed.trim().equalsIgnoreCase(address.trim())) {
-            return true;
-            }
-        }
-        return false;
+    /** Expéditeur présent dans la liste configurée dans l'application. */
+    public static boolean isAllowed(Context context, String address) {
+        return Settings.with(context).isAllowedSender(address);
     }
 }

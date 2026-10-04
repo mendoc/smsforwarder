@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">SMS Forwarder</string>
+    <string name="device_section">Téléphone</string>
+    <string name="device_name_hint">Nom du téléphone (ex. Téléphone du bureau)</string>
+    <string name="sims_section">Cartes SIM</string>
+    <string name="sims_help">Nom envoyé à Miango pour chaque SIM. Un renommage fait dans la console Miango reste prioritaire.</string>
+    <string name="sims_permission">Autorisez l\'accès au téléphone pour afficher les SIM et les identifier dans Miango.</string>
+    <string name="sims_none">Aucune SIM active détectée.</string>
+    <string name="sim_hint">Nom de la SIM %1$s</string>
+    <string name="senders_section">Expéditeurs autorisés</string>
+    <string name="senders_help">Un expéditeur par ligne (ex. AirtelMoney). Seuls leurs SMS sont relayés, ainsi que ceux qui contiennent « paypal ».</string>
+    <string name="senders_hint">AirtelMoney</string>
+    <string name="save">Enregistrer</string>
+    <string name="saved">Paramètres enregistrés</string>
 </resources>

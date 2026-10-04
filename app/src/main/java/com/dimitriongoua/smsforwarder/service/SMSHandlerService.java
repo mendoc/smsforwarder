@@ -31,6 +31,7 @@ public class SMSHandlerService extends Service {
                 SMS sms = (SMS) intentExtras.get(KEY_SMS);
                 Master.with(this).forwardToTelegramBot(sms);
                 Master.with(this).forwardToURL(sms);
+                Master.with(this).forwardToInbox(sms);
             }
         }
         return START_STICKY;

@@ -1,9 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/device_section" />
+
+        <EditText
+            android:id="@+id/device_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:hint="@string/device_name_hint"
+            android:inputType="textCapSentences"
+            android:maxLength="100" />
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/sims_section" />
+
+        <TextView
+            style="@style/SettingsHelp"
+            android:text="@string/sims_help" />
+
+        <LinearLayout
+            android:id="@+id/sims_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <TextView
+            style="@style/SettingsTitle"
+            android:text="@string/senders_section" />
+
+        <TextView
+            style="@style/SettingsHelp"
+            android:text="@string/senders_help" />
+
+        <EditText
+            android:id="@+id/allowed_senders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:gravity="top"
+            android:hint="@string/senders_hint"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:minLines="4" />
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/save" />
+    </LinearLayout>
+</ScrollView>
