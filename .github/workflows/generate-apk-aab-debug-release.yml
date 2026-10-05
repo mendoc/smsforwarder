@@ -103,3 +103,25 @@ jobs:
           name: ${{ env.apk_name }}
           path: dist/${{ env.apk_name }}.apk
           if-no-files-found: error
+
+      # Envoi de l'APK sur Telegram pour les livraisons (release/**) et les lancements
+      # manuels, pas pour les PR. Secrets TELEGRAM_BOT_TOKEN et TELEGRAM_CHAT_ID, à défaut
+      # BOT_TOKEN et CHAT_ID (ceux déjà utilisés par l'app). Sans secret, l'étape est
+      # ignorée avec un avertissement.
+      - name: Send APK to Telegram
+        if: github.event_name != 'pull_request'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || secrets.BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || secrets.CHAT_ID }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::warning::Secrets Telegram absents : APK non envoyé sur Telegram."
+            exit 0
+          fi
+          caption="SMS Forwarder ${apk_name#sms-forwarder-} · ${GITHUB_REF_NAME} · ${GITHUB_SHA::7}"
+          curl -sS --fail-with-body -o /dev/null \
+            --form-string chat_id="$TELEGRAM_CHAT_ID" \
+            --form-string caption="$caption" \
+            -F document=@"dist/${apk_name}.apk" \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
+          echo "APK envoyé sur Telegram : $caption"

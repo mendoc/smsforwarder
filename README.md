@@ -4,6 +4,7 @@ SMS Forwarder est une application mobile permettant de transférer les SMS reçu
 - Le développement se fait sur `main`, par des PR. Chaque PR vers `main` compile l’APK de debug et le joint en artefact (GitHub Actions).
 - Pour chaque livraison, une branche `release/x.y.z` est créée depuis `main` : le push sur `release/**` produit l’APK.
 - Le workflow peut aussi être lancé à la main (onglet Actions).
+- Pour les livraisons (`release/**`) et les lancements manuels, l’APK est aussi envoyé sur Telegram (secrets `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`, à défaut `BOT_TOKEN` / `CHAT_ID`), avec la légende « SMS Forwarder <version> · <branche> · <commit> ».
 - L’artefact s’appelle `sms-forwarder-<version>` et contient `sms-forwarder-<version>.apk`, où la version est le `versionName` de `app/build.gradle`.
 
 ## Outil « SMS » de la console Miango (v1.2.0)
