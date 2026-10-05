@@ -36,6 +36,7 @@ public class ReglagesScreenshotTest {
     public void seed() {
         JournalDb.resetForTests();
         shadowOf(Screens.app()).grantPermissions(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS);
+        Screens.batteryUnrestricted();
         Settings.with(Screens.app()).setDeviceName("Galaxy A14 · Bureau");
     }
 

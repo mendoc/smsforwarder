@@ -14,9 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.dimitriongoua.smsforwarder.R;
@@ -26,6 +24,7 @@ import com.dimitriongoua.smsforwarder.filter.SimPolicy;
 import com.dimitriongoua.smsforwarder.journal.HomeFormat;
 import com.dimitriongoua.smsforwarder.journal.HomeStats;
 import com.dimitriongoua.smsforwarder.journal.JournalDb;
+import com.dimitriongoua.smsforwarder.permission.Permissions;
 import com.dimitriongoua.smsforwarder.send.Forwarder;
 import com.dimitriongoua.smsforwarder.sync.SyncEngine;
 import com.dimitriongoua.smsforwarder.sync.SyncScheduler;
@@ -45,12 +44,8 @@ import java.util.concurrent.Executors;
  * Carte SIM) et synchronisation des SMS manqués. Les réglages sont dans {@link ReglagesActivity}.
  */
 public class MainActivity extends AppCompatActivity {
-    private static final int MY_PERMISSIONS_REQUEST = 10055;
-    static final String[] PERMISSIONS = {
-            Manifest.permission.READ_SMS,
-            Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.READ_PHONE_STATE,
-    };
+    // Écran Autorisations ouvert une fois par processus (un retrait d'autorisation le relance).
+    static boolean permissionsShown;
     // Lecture de l'état sans attendre les envois en cours sur Forwarder.EXECUTOR.
     private static final ExecutorService READER = Executors.newSingleThreadExecutor();
 
@@ -66,11 +61,15 @@ public class MainActivity extends AppCompatActivity {
         TabBar.bind(this, TabBar.Tab.HOME);
         findViewById(R.id.home_settings).setOnClickListener(v ->
                 TabBar.open(this, TabBar.Tab.HOME, TabBar.Tab.SETTINGS));
-        findViewById(R.id.home_sims_allow).setOnClickListener(v -> requestPermissions());
+        findViewById(R.id.home_sims_allow).setOnClickListener(v -> AutorisationsActivity.open(this));
         syncNow = findViewById(R.id.home_sync_now);
         syncNow.setOnClickListener(v -> syncNow());
         SyncScheduler.ensurePeriodic(this);
-        if (!hasAll(this)) requestPermissions();
+        // Premier lancement ou autorisation retirée (le système relance alors le processus).
+        if (!permissionsShown && Permissions.runtimeMissing(this)) {
+            permissionsShown = true;
+            AutorisationsActivity.open(this);
+        }
     }
 
     @Override
@@ -79,19 +78,8 @@ public class MainActivity extends AppCompatActivity {
         render();
     }
 
-    static boolean hasAll(android.content.Context context) {
-        for (String permission : PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) return false;
-        }
-        return true;
-    }
-
     private boolean granted(String permission) {
         return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, PERMISSIONS, MY_PERMISSIONS_REQUEST);
     }
 
     /** Lit le journal sur un fil à part, puis met tout l'écran à jour. */
@@ -257,9 +245,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_PERMISSIONS_REQUEST) render();
-    }
 }

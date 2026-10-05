@@ -162,4 +162,23 @@
     <string name="sim_name_help">Envoyé à Miango. Un renommage fait dans la console Miango reste prioritaire.</string>
     <string name="sim_save">Enregistrer le nom</string>
     <string name="sim_saved">Nom de la SIM enregistré</string>
+    <!-- Autorisations -->
+    <string name="permissions_back">Retour</string>
+    <string name="permissions_title">Pour relayer sans interruption</string>
+    <string name="permissions_intro">Chaque autorisation dit à quoi elle sert. Rien n\'est envoyé ailleurs que vers vos destinations.</string>
+    <string name="permissions_footer">Cet écran s\'ouvre au premier lancement et dès qu\'une autorisation est retirée.</string>
+    <string name="permissions_allow">Autoriser</string>
+    <string name="permissions_granted">Accordée</string>
+    <string name="permissions_set">Réglée</string>
+    <string name="permissions_denied">Refusée</string>
+    <string name="permissions_receive_sms">Recevoir les SMS</string>
+    <string name="permissions_receive_sms_text">Relayer chaque SMS dès son arrivée.</string>
+    <string name="permissions_read_sms">Lire les SMS</string>
+    <string name="permissions_read_sms_text">Rattraper les SMS manqués pendant une coupure.</string>
+    <string name="permissions_phone">Téléphone</string>
+    <string name="permissions_phone_text">Savoir quelle SIM a reçu chaque SMS. Sans elle, les SMS arrivent dans Miango avec « SIM inconnue » et le choix par SIM est impossible.</string>
+    <string name="permissions_battery">Batterie sans restriction</string>
+    <string name="permissions_battery_text">Empêcher Android de suspendre l\'application en veille.</string>
+    <string name="permissions_settings_hint">Autorisation bloquée : activez-la dans les réglages de l\'application.</string>
+    <string name="settings_alert_sub_battery">Sans elle, Android peut suspendre le relais en veille.</string>
 </resources>

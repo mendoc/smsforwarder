@@ -9,6 +9,7 @@ import android.app.Application;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.telephony.SubscriptionManager;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -51,6 +52,12 @@ final class Screens {
     static void grantAll() {
         shadowOf(app()).grantPermissions(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.READ_PHONE_STATE);
+        batteryUnrestricted();
+    }
+
+    /** « Batterie sans restriction » réglée (exemption d'optimisation). */
+    static void batteryUnrestricted() {
+        shadowOf(app().getSystemService(PowerManager.class)).setIgnoringBatteryOptimizations(app().getPackageName(), true);
     }
 
     /** Deux SIM actives, comme sur la maquette. */

@@ -1,7 +1,5 @@
 package com.dimitriongoua.smsforwarder.activity;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -15,10 +13,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -27,6 +23,7 @@ import com.dimitriongoua.smsforwarder.R;
 import com.dimitriongoua.smsforwarder.filter.InvalidRuleException;
 import com.dimitriongoua.smsforwarder.filter.SmsFilter;
 import com.dimitriongoua.smsforwarder.journal.HomeFormat;
+import com.dimitriongoua.smsforwarder.permission.Permissions;
 import com.dimitriongoua.smsforwarder.util.Settings;
 import com.google.android.material.chip.ChipGroup;
 
@@ -40,8 +37,6 @@ import java.util.List;
  * « Enregistrer » ; une règle invalide bloque tout l'enregistrement.
  */
 public class ReglagesActivity extends AppCompatActivity {
-    private static final int PERMISSIONS_REQUEST = 10056;
-
     private Settings settings;
     private EditText deviceName;
     private EditText rules;
@@ -83,8 +78,8 @@ public class ReglagesActivity extends AppCompatActivity {
 
         ((TextView) findViewById(R.id.settings_version)).setText(
                 getString(R.string.settings_version_value, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
-        findViewById(R.id.settings_alert).setOnClickListener(v -> requestPermissions());
-        findViewById(R.id.settings_permissions_row).setOnClickListener(v -> requestPermissions());
+        findViewById(R.id.settings_alert).setOnClickListener(v -> AutorisationsActivity.open(this));
+        findViewById(R.id.settings_permissions_row).setOnClickListener(v -> AutorisationsActivity.open(this));
         findViewById(R.id.settings_save).setOnClickListener(v -> save());
     }
 
@@ -94,24 +89,16 @@ public class ReglagesActivity extends AppCompatActivity {
         renderPermissions();
     }
 
-    private boolean granted(String permission) {
-        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, MainActivity.PERMISSIONS, PERMISSIONS_REQUEST);
-    }
-
     private void renderPermissions() {
-        int missing = 0;
-        for (String permission : MainActivity.PERMISSIONS) {
-            if (!granted(permission)) missing++;
-        }
-        boolean smsMissing = !granted(Manifest.permission.RECEIVE_SMS) || !granted(Manifest.permission.READ_SMS);
+        List<Permissions.Kind> absent = Permissions.missing(this);
+        int missing = absent.size();
+        boolean smsMissing = absent.contains(Permissions.Kind.RECEIVE_SMS) || absent.contains(Permissions.Kind.READ_SMS);
+        boolean phoneMissing = absent.contains(Permissions.Kind.PHONE);
         findViewById(R.id.settings_alert).setVisibility(missing > 0 ? View.VISIBLE : View.GONE);
         ((TextView) findViewById(R.id.settings_alert_title)).setText(HomeFormat.missingPermissions(missing));
         ((TextView) findViewById(R.id.settings_alert_sub)).setText(
-                smsMissing ? R.string.settings_alert_sub_sms : R.string.settings_alert_sub);
+                smsMissing ? R.string.settings_alert_sub_sms
+                        : phoneMissing ? R.string.settings_alert_sub : R.string.settings_alert_sub_battery);
         TextView state = findViewById(R.id.settings_permissions_state);
         state.setText(missing > 0 ? getString(R.string.settings_permissions_missing, missing)
                 : getString(R.string.settings_permissions_ok));
@@ -216,9 +203,4 @@ public class ReglagesActivity extends AppCompatActivity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSIONS_REQUEST) renderPermissions();
-    }
 }
