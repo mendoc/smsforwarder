@@ -41,7 +41,7 @@ import java.util.TimeZone;
 /**
  * Écran Journal rendu sur la JVM (Robolectric, rendu graphique natif) avec un journal
  * d'exemple : vérifie les filtres et enregistre une capture PNG par état dans
- * {@code app/build/screenshots/}, publiée par le CI pour la comparer à la maquette.
+ * {@code app/build/screenshots/} (liste, filtre En attente, SMS ouvert), publiée par le CI pour la comparer à la maquette.
  */
 @RunWith(RobolectricTestRunner.class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -101,6 +101,15 @@ public class JournalScreenshotTest {
         ListView list = waitForRows(activity, 1);
         assertEquals(1, list.getAdapter().getCount());
         capture(activity, "journal-en-attente");
+    }
+
+    @Test
+    public void smsOuvert() throws IOException {
+        Activity activity = Robolectric.buildActivity(JournalActivity.class).setup().get();
+        ListView list = waitForRows(activity, 5);
+        list.performItemClick(null, 0, list.getAdapter().getItemId(0));
+        shadowOf(Looper.getMainLooper()).idle();
+        capture(activity, "journal-sms-ouvert");
     }
 
     @Test
