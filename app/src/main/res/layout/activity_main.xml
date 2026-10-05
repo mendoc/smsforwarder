@@ -80,12 +80,14 @@
                 android:paddingStart="22dp"
                 android:paddingTop="22dp"
                 android:paddingEnd="22dp"
-                android:paddingBottom="20dp">
+                android:paddingBottom="20dp"
+                android:clipToPadding="false">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="-6dp"
+                    android:clipChildren="false"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -114,7 +116,7 @@
                     android:layout_marginTop="16dp"
                     android:fontFamily="@font/plex_sans_bold"
                     android:letterSpacing="-0.02"
-                    android:lineSpacingExtra="6sp"
+                    android:lineSpacingExtra="1sp"
                     android:textColor="@color/white"
                     android:textSize="30sp" />
 
@@ -124,7 +126,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:lineSpacingExtra="7sp"
+                    android:lineSpacingExtra="1sp"
                     android:textColor="@color/hero_text_2" />
 
                 <LinearLayout
@@ -243,7 +245,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/plex_sans_semibold"
-                        android:lineSpacingExtra="4sp"
+                        android:lineSpacingExtra="1sp"
                         android:textColor="@color/amber_ink" />
 
                     <TextView
@@ -251,7 +253,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
-                        android:lineSpacingExtra="4sp"
+                        android:lineSpacingExtra="1sp"
                         android:text="@string/home_alert_sub"
                         android:textColor="@color/amber_ink"
                         android:textSize="13sp" />

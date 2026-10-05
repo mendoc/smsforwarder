@@ -221,7 +221,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/bg_info_blue"
-                    android:lineSpacingExtra="5sp"
+                    android:lineSpacingExtra="1sp"
                     android:paddingStart="12dp"
                     android:paddingTop="10dp"
                     android:paddingEnd="12dp"
@@ -261,7 +261,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/sims_help" />
+                android:text="@string/sim_name_help" />
 
             <!-- Règles -->
             <TextView

@@ -79,7 +79,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
-                        android:lineSpacingExtra="4sp"
+                        android:lineSpacingExtra="1sp"
                         android:textColor="@color/red_text"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -228,7 +228,7 @@
                     android:gravity="top|start"
                     android:hint="@string/rules_hint"
                     android:inputType="textMultiLine|textNoSuggestions"
-                    android:lineSpacingExtra="7sp"
+                    android:lineSpacingExtra="1sp"
                     android:minHeight="44dp"
                     android:paddingStart="14dp"
                     android:paddingTop="12dp"

@@ -88,7 +88,7 @@
     <string name="home_stat_pending">en attente</string>
     <string name="home_stat_failed">échec</string>
     <string name="home_stat_failed_plural">échecs</string>
-    <string name="home_alert_sub">Sans réponse. Reprise automatique par la synchronisation.</string>
+    <string name="home_alert_sub">Sans réponse. Reprise par la synchronisation.</string>
     <string name="home_sims_title">Cartes SIM</string>
     <string name="home_sims_permission">Autorisez l\'accès au téléphone pour afficher les SIM et choisir celles dont les SMS sont transférés.</string>
     <string name="home_sims_allow">Autoriser</string>
@@ -137,6 +137,7 @@
     <string name="sim_rule_1">Ses nouveaux SMS restent sur le téléphone, ils ne sont envoyés nulle part.</string>
     <string name="sim_rule_2">Les envois déjà en cours sont terminés.</string>
     <string name="sim_rule_3">À la réactivation, seuls les SMS reçus ensuite partent : rien d\'ancien n\'est rattrapé.</string>
+    <string name="sim_name_help">Envoyé à Miango. Un renommage fait dans la console Miango reste prioritaire.</string>
     <string name="sim_save">Enregistrer le nom</string>
     <string name="sim_saved">Nom de la SIM enregistré</string>
 </resources>

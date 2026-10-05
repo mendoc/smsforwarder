@@ -8,7 +8,6 @@
         <item name="android:fontFamily">@font/plex_sans_regular</item>
         <item name="android:textColor">@color/ink</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:includeFontPadding">false</item>
     </style>
 
     <!-- « SMS FORWARDER », « TÉLÉPHONE » : petites capitales espacées -->
@@ -42,13 +41,13 @@
 
     <style name="Refonte.Text.Body">
         <item name="android:textSize">14sp</item>
-        <item name="android:lineSpacingExtra">5sp</item>
+        <item name="android:lineSpacingExtra">1sp</item>
     </style>
 
     <style name="Refonte.Text.Caption">
         <item name="android:textColor">@color/ink_2</item>
         <item name="android:textSize">13sp</item>
-        <item name="android:lineSpacingExtra">5sp</item>
+        <item name="android:lineSpacingExtra">1sp</item>
     </style>
 
     <style name="Refonte.Text.Mono">
@@ -65,7 +64,7 @@
     <style name="Refonte.Text.StatLabel">
         <item name="android:textColor">@color/hero_text_2</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:lineSpacingExtra">0sp</item>
     </style>
 
     <!-- Bouton plein vert, 52 dp, coins 14 dp -->
