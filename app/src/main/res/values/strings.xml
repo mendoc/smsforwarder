@@ -7,6 +7,13 @@
     <string name="sims_permission">Autorisez l\'accès au téléphone pour afficher les SIM et les identifier dans Miango.</string>
     <string name="sims_none">Aucune SIM active détectée.</string>
     <string name="sim_hint">Nom de la SIM %1$s</string>
+    <string name="sim_forward">Transférer les SMS de cette SIM</string>
+    <string name="sim_disabled_since">Désactivée le %1$s : ses SMS ne sont pas transférés.</string>
+    <string name="sim_enabled_since">Réactivée le %1$s : les SMS reçus avant cette date ne sont pas transférés.</string>
+    <string name="sim_enabled_toast">Transfert activé : %1$s</string>
+    <string name="sim_disabled_toast">Transfert désactivé : %1$s</string>
+    <string name="sim_absent">SIM absente du téléphone (%1$s)</string>
+    <string name="sims_unknown_blocked">Tant qu\'une SIM est désactivée, les SMS dont la SIM n\'est pas identifiée ne sont pas transférés.</string>
     <string name="senders_section">Expéditeurs autorisés</string>
     <string name="senders_help">Un expéditeur par ligne (ex. AirtelMoney). Leurs SMS sont relayés, ainsi que ceux retenus par les règles avancées.</string>
     <string name="senders_hint">AirtelMoney</string>
