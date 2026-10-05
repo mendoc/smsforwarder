@@ -7,10 +7,13 @@ import android.provider.Settings.Secure;
 import android.text.TextUtils;
 
 import com.dimitriongoua.smsforwarder.config.Constants;
+import com.dimitriongoua.smsforwarder.filter.SimPolicy;
 import com.dimitriongoua.smsforwarder.filter.SmsFilter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -28,6 +31,8 @@ public class Settings {
     private static final String KEY_ALLOWED_SENDERS = "allowed_senders";
     private static final String KEY_FILTER_RULES = "filter_rules";
     private static final String KEY_SIM_NAME_PREFIX = "sim_name_";
+    private static final String KEY_SIM_ENABLED_PREFIX = "sim_enabled_";
+    private static final String KEY_SIM_CHANGED_PREFIX = "sim_changed_";
     private static final String KEY_SYNC_ORIGIN = "sync_origin";
     private static final String KEY_LAST_SYNC = "sync_last_success";
     private static final String KEY_LAST_CHECK = "sync_last_check";
@@ -123,6 +128,34 @@ public class Settings {
 
     public void setSimName(int subscriptionId, String name) {
         prefs.edit().putString(KEY_SIM_NAME_PREFIX + subscriptionId, name == null ? "" : name.trim()).apply();
+    }
+
+    /** SIM dont les SMS sont transférés (voir {@link SimPolicy}). */
+    public SimPolicy getSimPolicy() {
+        Map<Integer, SimPolicy.State> states = new HashMap<>();
+        for (String key : prefs.getAll().keySet()) {
+            if (!key.startsWith(KEY_SIM_ENABLED_PREFIX)) continue;
+            try {
+                int id = Integer.parseInt(key.substring(KEY_SIM_ENABLED_PREFIX.length()));
+                states.put(id, new SimPolicy.State(prefs.getBoolean(key, true),
+                        prefs.getLong(KEY_SIM_CHANGED_PREFIX + id, 0)));
+            } catch (NumberFormatException | ClassCastException ignored) {
+                // Clé étrangère au réglage des SIM.
+            }
+        }
+        return new SimPolicy(states);
+    }
+
+    /**
+     * Active ou désactive le transfert des SMS d'une SIM. À l'activation, seuls les SMS
+     * reçus à partir de {@code now} seront transférés. Sans effet si l'état ne change pas.
+     */
+    public synchronized void setSimEnabled(int subscriptionId, boolean enabled, long now) {
+        if (getSimPolicy().isEnabled(subscriptionId) == enabled) return;
+        prefs.edit()
+                .putBoolean(KEY_SIM_ENABLED_PREFIX + subscriptionId, enabled)
+                .putLong(KEY_SIM_CHANGED_PREFIX + subscriptionId, now)
+                .apply();
     }
 
     /** Réception du premier SMS envoyé avec succès (0 tant qu'il n'y en a pas). */

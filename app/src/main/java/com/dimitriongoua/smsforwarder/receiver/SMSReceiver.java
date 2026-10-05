@@ -38,14 +38,14 @@ public class SMSReceiver extends BroadcastReceiver {
                     Log.d(TAG, smsMessage.getMessageBody());
                 }
 
-                if (Master.isAllowed(context, smsAddress, smsBody.toString())) {
-                    SMS newSMS = new SMS();
-                    newSMS.setAddress(smsAddress);
-                    newSMS.setBody(smsBody.toString());
-                    newSMS.setTimestamp(smsTimestamp);
-                    newSMS.setReceivedAt(System.currentTimeMillis());
-                    SimResolver.fill(context, newSMS, SimResolver.subscriptionIdFrom(intent));
+                SMS newSMS = new SMS();
+                newSMS.setAddress(smsAddress);
+                newSMS.setBody(smsBody.toString());
+                newSMS.setTimestamp(smsTimestamp);
+                newSMS.setReceivedAt(System.currentTimeMillis());
+                SimResolver.fill(context, newSMS, SimResolver.subscriptionIdFrom(intent));
 
+                if (Master.isAllowed(context, newSMS)) {
                     Intent smsIntent = new Intent(context, SMSHandlerService.class);
                     smsIntent.putExtra(KEY_SMS, newSMS);
                     context.startService(smsIntent);

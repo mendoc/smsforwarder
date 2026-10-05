@@ -69,6 +69,17 @@ Déclenchement (JobScheduler, toujours avec réseau) : toutes les 15 minutes, au
 
 Aucun changement n'est nécessaire côté Miango : `/sms/incoming` ignore un SMS déjà enregistré (`dedup_hash`).
 
+## Choix des SIM transférées (v1.4.0)
+Sur l'écran principal, chaque SIM a une case « Transférer les SMS de cette SIM », appliquée dès qu'elle est touchée (règle : `filter/SimPolicy`, testée par `SimPolicyTest`) :
+- une SIM jamais réglée, dont une SIM nouvellement insérée, est **active** ;
+- une SIM désactivée ne transfère plus rien, ni à la réception ni à la synchronisation ;
+- une SIM **réactivée** ne transfère que les SMS reçus **après** sa réactivation. La synchronisation peut relire une fenêtre plus ancienne (marge de 2 min, envoi en attente qui retient la dernière synchronisation) : les SMS reçus pendant la désactivation ne sont jamais repris ;
+- les envois déjà au journal quand la SIM est désactivée (SMS accepté quand elle était active) sont **terminés** ;
+- tant qu'une SIM est désactivée, un SMS dont la SIM n'est pas identifiée (colonne `sub_id` absente, permission « Téléphone » refusée) **n'est pas transféré** ;
+- une SIM désactivée retirée du téléphone reste listée (« SIM absente du téléphone ») pour pouvoir la réactiver.
+
+Le choix est enregistré par identifiant d'abonnement Android (`subscriptionId`), comme le nom de la SIM. Un SMS non transféré n'apparaît pas dans le journal (comme un SMS refusé par les filtres).
+
 ## Identifiant du téléphone et signature de l'APK (v1.3.1)
 L'identifiant envoyé à Miango (`device.id`) est dérivé d'`ANDROID_ID`, haché, de la forme `a-<32 hex>`. Il reste le même après une désinstallation puis une réinstallation, **à condition que l'APK soit toujours signé avec la même clé**. Il ne change qu'après une réinitialisation du téléphone. Sans `ANDROID_ID` utilisable, un identifiant aléatoire est généré une fois.
 

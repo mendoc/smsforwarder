@@ -8,7 +8,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.telephony.SubscriptionInfo;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,6 +24,7 @@ import androidx.core.content.ContextCompat;
 import com.dimitriongoua.smsforwarder.BuildConfig;
 import com.dimitriongoua.smsforwarder.R;
 import com.dimitriongoua.smsforwarder.filter.InvalidRuleException;
+import com.dimitriongoua.smsforwarder.filter.SimPolicy;
 import com.dimitriongoua.smsforwarder.filter.SmsFilter;
 import com.dimitriongoua.smsforwarder.journal.JournalDb;
 import com.dimitriongoua.smsforwarder.journal.JournalFormat;
@@ -34,14 +37,16 @@ import com.dimitriongoua.smsforwarder.util.SimResolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Écran de paramétrage : nom du téléphone, nom de chaque SIM, expéditeurs autorisés et
+ * Écran de paramétrage : nom du téléphone, nom et transfert de chaque SIM, expéditeurs autorisés et
  * règles de filtrage avancées. Affiche aussi l'état de la synchronisation des SMS manqués.
  * La version installée est affichée en pied de page.
  */
@@ -59,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText filterRules;
     private LinearLayout simsContainer;
     private final Map<Integer, EditText> simNames = new HashMap<>();
+    private TextView unknownSimNote;
     private final Handler main = new Handler(Looper.getMainLooper());
     // Lecture de l'état sans attendre les envois en cours sur Forwarder.EXECUTOR.
     private static final ExecutorService READER = Executors.newSingleThreadExecutor();
@@ -157,21 +163,26 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    /** Un champ par SIM active, prérempli avec le nom enregistré ou l'opérateur. */
+    /**
+     * Par SIM active : nom (prérempli avec le nom enregistré) et case de transfert, appliquée
+     * dès qu'elle est touchée. Les SIM désactivées absentes du téléphone restent listées,
+     * pour pouvoir les réactiver.
+     */
     private void renderSims() {
         simsContainer.removeAllViews();
         simNames.clear();
+        SimPolicy policy = settings.getSimPolicy();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             simsContainer.addView(help(getString(R.string.sims_permission)));
+            addUnknownSimNote(policy);
             return;
         }
         List<SubscriptionInfo> sims = SimResolver.activeSims(this);
-        if (sims.isEmpty()) {
-            simsContainer.addView(help(getString(R.string.sims_none)));
-            return;
-        }
+        if (sims.isEmpty()) simsContainer.addView(help(getString(R.string.sims_none)));
+        Set<Integer> shown = new HashSet<>();
         for (SubscriptionInfo sim : sims) {
             int id = sim.getSubscriptionId();
+            shown.add(id);
             CharSequence carrier = sim.getCarrierName();
             String slot = "SIM " + (sim.getSimSlotIndex() + 1) + (carrier == null ? "" : " · " + carrier);
 
@@ -182,8 +193,60 @@ public class MainActivity extends AppCompatActivity {
             field.setText(name == null ? "" : name);
             simsContainer.addView(help(slot));
             simsContainer.addView(field);
+            addForwardToggle(id, name == null ? slot : name, policy);
             simNames.put(id, field);
         }
+        for (int id : policy.disabled()) {
+            if (shown.contains(id)) continue;
+            String name = settings.getSimName(id);
+            String label = getString(R.string.sim_absent, name == null ? String.valueOf(id) : name);
+            simsContainer.addView(help(label));
+            addForwardToggle(id, label, policy);
+        }
+        addUnknownSimNote(policy);
+    }
+
+    private void addUnknownSimNote(SimPolicy policy) {
+        unknownSimNote = help(getString(R.string.sims_unknown_blocked));
+        simsContainer.addView(unknownSimNote);
+        updateUnknownSimNote(policy);
+    }
+
+    private void updateUnknownSimNote(SimPolicy policy) {
+        if (unknownSimNote != null) unknownSimNote.setVisibility(policy.anyDisabled() ? View.VISIBLE : View.GONE);
+    }
+
+    private void addForwardToggle(int id, String label, SimPolicy policy) {
+        CheckBox box = new CheckBox(this);
+        box.setText(R.string.sim_forward);
+        box.setChecked(policy.isEnabled(id));
+        TextView state = help("");
+        showSimState(state, policy.stateOf(id));
+        // Appliqué tout de suite (pas de bouton Enregistrer) ; les noms en cours de saisie
+        // ne sont pas touchés.
+        box.setOnCheckedChangeListener((view, checked) -> {
+            settings.setSimEnabled(id, checked, System.currentTimeMillis());
+            SimPolicy updated = settings.getSimPolicy();
+            showSimState(state, updated.stateOf(id));
+            updateUnknownSimNote(updated);
+            Toast.makeText(this, getString(checked ? R.string.sim_enabled_toast : R.string.sim_disabled_toast, label),
+                    Toast.LENGTH_SHORT).show();
+        });
+        simsContainer.addView(box);
+        simsContainer.addView(state);
+    }
+
+    private void showSimState(TextView view, SimPolicy.State state) {
+        String text = simState(state);
+        view.setText(text);
+        view.setVisibility(text.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    /** « Désactivée le … » ou « Réactivée le … », vide pour une SIM jamais réglée. */
+    private String simState(SimPolicy.State state) {
+        if (state == null || state.changedAt <= 0) return "";
+        String when = JournalFormat.dateTime(state.changedAt, TimeZone.getDefault());
+        return getString(state.enabled ? R.string.sim_enabled_since : R.string.sim_disabled_since, when);
     }
 
     private TextView help(String text) {

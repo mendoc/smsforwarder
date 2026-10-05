@@ -3,6 +3,7 @@ package com.dimitriongoua.smsforwarder.sync;
 import android.content.Context;
 import android.util.Log;
 
+import com.dimitriongoua.smsforwarder.filter.SimPolicy;
 import com.dimitriongoua.smsforwarder.filter.SmsFilter;
 import com.dimitriongoua.smsforwarder.journal.Delivery;
 import com.dimitriongoua.smsforwarder.journal.DeliveryStatus;
@@ -22,12 +23,13 @@ import java.util.List;
  *     <li>renvoi des envois du journal encore en attente ou à retenter ;</li>
  *     <li>lecture de la boîte de réception, toutes SIM confondues, depuis la dernière
  *     synchronisation réussie : un SMS retenu par les filtres et absent du journal est
- *     relayé ;</li>
+ *     relayé, sauf si sa SIM est désactivée ou l'était à sa réception ({@link SimPolicy}) ;</li>
  *     <li>avancement de la dernière synchronisation réussie jusqu'au plus ancien SMS encore
  *     non synchronisé (voir {@link SyncPlan}).</li>
  * </ol>
  * Un envoi déjà réussi n'est jamais refait ; /sms/incoming ignore de toute façon un SMS
- * déjà enregistré. À appeler sur {@link Forwarder#EXECUTOR}. L'appelant replanifie une
+ * déjà enregistré. Les envois déjà au journal sont terminés même si leur SIM a été
+ * désactivée depuis : le SMS a été accepté quand elle était active. À appeler sur {@link Forwarder#EXECUTOR}. L'appelant replanifie une
  * synchronisation s'il reste des envois à faire ({@link Result#open}).
  */
 public class SyncEngine {
@@ -90,9 +92,11 @@ public class SyncEngine {
         long from = SyncPlan.scanFrom(origin, settings.getLastSync());
         if (from != SyncPlan.NONE) {
             SmsFilter filter = settings.getFilter();
+            SimPolicy sims = settings.getSimPolicy();
             for (SMS sms : InboxReader.readSince(context, from)) {
                 if (SyncPlan.beforeOrigin(sms.getReceivedAt(), origin)) continue;
                 if (!filter.accepts(sms.getAddress(), sms.getBody())) continue;
+                if (!sims.accepts(sms.getSubscriptionId(), sms.getReceivedAt())) continue;
                 String fingerprint = Fingerprint.of(sms.getAddress(), sms.getTimestampMillis(), sms.getBody());
                 if (journal.findId(fingerprint) >= 0) continue;
                 if (journal.containsSimilar(sms.getAddress(), sms.getBody(), sms.getReceivedAt(), SIMILAR_WINDOW_MS)) continue;
