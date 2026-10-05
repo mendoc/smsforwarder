@@ -28,6 +28,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # contents: write pour publier les captures d'écran sur la branche screenshots/<branche>.
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -148,3 +152,27 @@ jobs:
             -F document=@"dist/${apk_name}.apk" \
             "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
           echo "APK envoyé sur Telegram : $caption"
+
+      # Captures d'écran des tests Robolectric (app/build/screenshots, voir JournalScreenshotTest),
+      # même si un test échoue : publiées seules sur la branche screenshots/<branche de la PR>,
+      # réécrite à chaque run, pour les comparer à la maquette sans téléphone.
+      - name: Publish screenshots
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          shots=app/build/screenshots
+          if ! ls "$shots"/*.png >/dev/null 2>&1; then echo "Aucune capture d'écran."; exit 0; fi
+          target="screenshots/${BRANCH_NAME}"
+          work="$RUNNER_TEMP/screenshots"
+          mkdir -p "$work" && cp "$shots"/*.png "$work/"
+          cd "$work"
+          printf 'Captures de %s (%s), run %s\n' "$BRANCH_NAME" "${HEAD_SHA::7}" "$GITHUB_RUN_NUMBER" > README.md
+          git init -q -b "$target"
+          git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Captures ${HEAD_SHA::7} (run ${GITHUB_RUN_NUMBER})"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${target}"
+          echo "Captures publiées sur la branche ${target} :" && ls *.png

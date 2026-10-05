@@ -7,4 +7,21 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Refonte (maquette Claude Design « SMS Forwarder — refonte ») -->
+    <color name="paper">#FFF2F3EE</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="ink">#FF121A17</color>
+    <color name="ink_2">#FF4B5752</color>
+    <color name="ink_body">#FF2E3833</color>
+    <color name="line">#FFE1E4DE</color>
+    <color name="line_soft">#FFEEEFEA</color>
+    <color name="pine">#FF0D5C4A</color>
+    <color name="pine_soft">#FFE2EEE8</color>
+    <color name="amber_ink">#FF6E3700</color>
+    <color name="amber_soft">#FFFCEFD9</color>
+    <color name="amber_line">#FFE8C896</color>
+    <color name="red_ink">#FFA0271E</color>
+    <color name="red_soft">#FFF9E3E0</color>
+    <color name="blue_ink">#FF1D4F91</color>
+    <color name="blue_soft">#FFE4ECF7</color>
 </resources>
