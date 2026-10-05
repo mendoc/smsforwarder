@@ -9,8 +9,10 @@ env:
 
 on:
 
+  # Livraisons (release/**) et builds d'intégration (main)
   push:
     branches:
+      - 'main'
       - 'release/**'
 
   # Le développement se fait sur main via des PR : chaque PR compile l'APK (artefact joint)
@@ -63,6 +65,27 @@ jobs:
             echo "::warning::Secret SIGNING_KEYSTORE_BASE64 absent : APK signé avec une clé de debug temporaire."
           fi
 
+      # Suffixe SemVer du versionName selon l'origine du build (lu par app/build.gradle) :
+      #   release/**  -> aucun (1.3.2)
+      #   PR          -> -pr.<PR>.<run>+<sha> (APK jetable)
+      #   main/manuel -> -dev.<run>+<sha> (build d'intégration)
+      # versionCode inchangé : la release s'installe toujours par-dessus un APK de test.
+      - name: Compute version suffix
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          case "$GITHUB_REF" in
+            refs/heads/release/*) suffix="" ;;
+            *)
+              if [ -n "$PR_NUMBER" ]; then pre="pr.${PR_NUMBER}.${GITHUB_RUN_NUMBER}"; else pre="dev.${GITHUB_RUN_NUMBER}"; fi
+              suffix="-${pre}+${HEAD_SHA::7}" ;;
+          esac
+          echo "VERSION_SUFFIX=$suffix" >> $GITHUB_ENV
+          # Sans les métadonnées « +sha » dans le nom de fichier
+          echo "apk_suffix=${suffix%%+*}" >> $GITHUB_ENV
+          echo "Suffixe de version : ${suffix:-(aucun, livraison)}"
+
       # Run Build Project
       - name: Build gradle project
         env:
@@ -92,11 +115,11 @@ jobs:
           if [ -z "$version" ]; then echo "versionName introuvable dans ${{ env.main_project_module }}/build.gradle" >&2; exit 1; fi
           apk=$(ls ${{ env.main_project_module }}/build/outputs/apk/debug/*.apk | head -n 1)
           mkdir -p dist
-          cp "$apk" "dist/sms-forwarder-$version.apk"
-          echo "apk_name=sms-forwarder-$version" >> $GITHUB_ENV
+          cp "$apk" "dist/sms-forwarder-$version$apk_suffix.apk"
+          echo "apk_name=sms-forwarder-$version$apk_suffix" >> $GITHUB_ENV
           ls -l dist
 
-      # Upload Artifact Build : artefact sms-forwarder-<version> contenant sms-forwarder-<version>.apk
+      # Upload Artifact Build : artefact sms-forwarder-<version><suffixe> contenant l'APK du même nom
       - name: Upload APK Debug - ${{ env.repository_name }}
         uses: actions/upload-artifact@v4
         with:
@@ -105,11 +128,11 @@ jobs:
           if-no-files-found: error
 
       # Envoi de l'APK sur Telegram pour les livraisons (release/**) et les lancements
-      # manuels, pas pour les PR. Secrets TELEGRAM_BOT_TOKEN et TELEGRAM_CHAT_ID, à défaut
+      # manuels, pas pour les PR ni les push sur main. Secrets TELEGRAM_BOT_TOKEN et TELEGRAM_CHAT_ID, à défaut
       # BOT_TOKEN et CHAT_ID (ceux déjà utilisés par l'app). Sans secret, l'étape est
       # ignorée avec un avertissement.
       - name: Send APK to Telegram
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/heads/release/')
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || secrets.BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || secrets.CHAT_ID }}
