@@ -31,6 +31,8 @@ public class DetailFormatTest {
         Delivery open = d("Telegram", DeliveryStatus.RETRY, 2, "Délai dépassé", null);
         Delivery failed = d("Autre", DeliveryStatus.FAILED, 1, "HTTP 400", null);
         assertEquals("Envoyé · 1 essai", DetailFormat.delivery(sent));
+        assertEquals("Envoyé · HTTP 200 · 1 essai", DetailFormat.delivery(new Delivery("url:a", "Miango",
+                DeliveryStatus.SENT, 1, AT, null, Delivery.VIA_RECEPTION, 200)));
         assertEquals("Envoyé par la synchronisation · 3 essais",
                 DetailFormat.delivery(d("Miango", DeliveryStatus.SENT, 3, null, Delivery.VIA_SYNC)));
         assertEquals("En attente · reprise par la synchronisation", DetailFormat.delivery(open));

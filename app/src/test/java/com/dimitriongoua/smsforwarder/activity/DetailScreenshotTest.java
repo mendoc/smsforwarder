@@ -46,10 +46,10 @@ public class DetailScreenshotTest {
         id = Screens.record(journal, "AirtelMoney",
                 "Vous avez recu 25 000 FCFA du 07 •• •• 31. Nouveau solde : 437 350 FCFA. TID: PP251005.1426.A84213",
                 now - 4 * MIN, Delivery.VIA_RECEPTION, SIM_AM6);
-        Screens.attempt(journal, id, "miango", SendOutcome.http(200));
-        Screens.attempt(journal, id, "sims", SendOutcome.http(200));
-        Screens.attempt(journal, id, "telegram", SendOutcome.noResponse("Délai dépassé"));
-        Screens.attempt(journal, id, "telegram", SendOutcome.noResponse("Délai dépassé"));
+        Screens.attempt(journal, id, Screens.MIANGO, SendOutcome.http(200));
+        Screens.attempt(journal, id, Screens.SIMS, SendOutcome.http(200));
+        Screens.attempt(journal, id, Screens.TELEGRAM, SendOutcome.noResponse("Délai dépassé"));
+        Screens.attempt(journal, id, Screens.TELEGRAM, SendOutcome.noResponse("Délai dépassé"));
     }
 
     @After
@@ -71,6 +71,10 @@ public class DetailScreenshotTest {
         assertEquals("AirtelMoney", text(activity, R.id.detail_sender));
         assertEquals("2 sur 3 réussis", text(activity, R.id.detail_summary));
         assertEquals("Réessayer Telegram maintenant", text(activity, R.id.detail_retry));
+        LinearLayout deliveries = activity.findViewById(R.id.detail_deliveries);
+        assertEquals("Miango · reçus", ((TextView) deliveries.getChildAt(0).findViewById(R.id.delivery_label)).getText().toString());
+        assertEquals("Envoyé · HTTP 200 · 1 essai",
+                ((TextView) deliveries.getChildAt(0).findViewById(R.id.delivery_detail)).getText().toString());
         assertEquals("AirtelMoney", ((TextView) activity.findViewById(R.id.detail_fact_rule)
                 .findViewById(R.id.fact_value)).getText().toString());
         Screens.capture(activity, "detail");

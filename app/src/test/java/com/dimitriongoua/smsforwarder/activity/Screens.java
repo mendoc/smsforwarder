@@ -14,6 +14,8 @@ import android.telephony.SubscriptionManager;
 import android.util.DisplayMetrics;
 import android.view.View;
 
+import com.dimitriongoua.smsforwarder.destination.DestinationStore;
+import com.dimitriongoua.smsforwarder.destination.TelegramDestination;
 import com.dimitriongoua.smsforwarder.journal.Delivery;
 import com.dimitriongoua.smsforwarder.journal.JournalDb;
 import com.dimitriongoua.smsforwarder.model.SMS;
@@ -41,6 +43,10 @@ final class Screens {
     static final int SIM_AM6 = 3;
     static final int SIM_MOOV = 4;
     static final long MIN = 60 * 1000L;
+    /** Clés réelles des destinations par défaut : le Détail affiche leur nom actuel. */
+    static final String MIANGO = "url:" + DestinationStore.SMS_HANDLER_ID;
+    static final String SIMS = "url:" + DestinationStore.SMS_INCOMING_ID;
+    static final String TELEGRAM = TelegramDestination.KEY;
 
     private Screens() {
     }
@@ -91,9 +97,9 @@ final class Screens {
         sms.setSimSlot(sim == SIM_MOOV ? 1 : 0);
         sms.setSimCarrier(sim == SIM_MOOV ? "Moov" : "Airtel");
         Map<String, String> destinations = new LinkedHashMap<>();
-        destinations.put("miango", "Miango");
-        destinations.put("sims", "SMS des SIM");
-        destinations.put("telegram", "Telegram");
+        destinations.put(MIANGO, "Miango");
+        destinations.put(SIMS, "SMS des SIM");
+        destinations.put(TELEGRAM, "Telegram");
         return journal.record(sms, sim == SIM_MOOV ? "Moov · perso" : "Am6", source, destinations);
     }
 
@@ -102,7 +108,7 @@ final class Screens {
     }
 
     static void allSent(JournalDb journal, long id) {
-        for (String key : new String[]{"miango", "sims", "telegram"}) attempt(journal, id, key, SendOutcome.http(200));
+        for (String key : new String[]{MIANGO, SIMS, TELEGRAM}) attempt(journal, id, key, SendOutcome.http(200));
     }
 
     /** Laisse le fil de lecture et le fil principal travailler jusqu'à la condition. */

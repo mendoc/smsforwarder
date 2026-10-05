@@ -3,6 +3,7 @@ package com.dimitriongoua.smsforwarder.activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,6 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.dimitriongoua.smsforwarder.R;
+import com.dimitriongoua.smsforwarder.destination.DestinationFormat;
+import com.dimitriongoua.smsforwarder.destination.DestinationStore;
+import com.dimitriongoua.smsforwarder.destination.TelegramDestination;
+import com.dimitriongoua.smsforwarder.destination.UrlDestination;
 import com.dimitriongoua.smsforwarder.journal.Delivery;
 import com.dimitriongoua.smsforwarder.journal.DeliveryStatus;
 import com.dimitriongoua.smsforwarder.journal.DetailFormat;
@@ -38,6 +43,7 @@ import java.util.concurrent.Executors;
  */
 public class DetailActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "sms_id";
+    private static final String URL_PREFIX = "url:";
     private static final ExecutorService READER = Executors.newSingleThreadExecutor();
 
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -108,11 +114,9 @@ public class DetailActivity extends AppCompatActivity {
 
         ((TextView) findViewById(R.id.detail_summary)).setText(DetailFormat.summary(entry.deliveries));
         LinearLayout list = findViewById(R.id.detail_deliveries);
-        // Les fonds des lignes (envoi en attente) suivent les coins arrondis de la carte.
-        list.setClipToOutline(true);
         list.removeAllViews();
         for (int i = 0; i < entry.deliveries.size(); i++) {
-            list.addView(row(entry.deliveries.get(i), list, i == entry.deliveries.size() - 1, zone));
+            list.addView(row(entry.deliveries.get(i), list, i == 0, i == entry.deliveries.size() - 1, zone));
         }
         list.setVisibility(entry.deliveries.isEmpty() ? View.GONE : View.VISIBLE);
 
@@ -122,7 +126,29 @@ public class DetailActivity extends AppCompatActivity {
         if (retry != null) retryButton.setText(retry);
     }
 
-    private View row(Delivery delivery, LinearLayout parent, boolean last, TimeZone zone) {
+    /** Nom actuel de la destination (« Miango · reçus »), sinon celui enregistré avec l'envoi. */
+    private String name(Delivery delivery) {
+        if (delivery.destinationKey.startsWith(URL_PREFIX)) {
+            UrlDestination url = DestinationStore.with(this).findUrl(delivery.destinationKey.substring(URL_PREFIX.length()));
+            if (url != null) return DestinationFormat.name(url);
+        } else if (TelegramDestination.KEY.equals(delivery.destinationKey)) {
+            return TelegramDestination.LABEL;
+        }
+        return delivery.destinationLabel;
+    }
+
+    /** Fond ambré d'un envoi en attente, arrondi comme la carte quand il en occupe un bord. */
+    private GradientDrawable openBackground(boolean first, boolean last) {
+        float r = 19 * getResources().getDisplayMetrics().density;
+        float top = first ? r : 0;
+        float bottom = last ? r : 0;
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(ContextCompat.getColor(this, R.color.open_row));
+        background.setCornerRadii(new float[]{top, top, top, top, bottom, bottom, bottom, bottom});
+        return background;
+    }
+
+    private View row(Delivery delivery, LinearLayout parent, boolean first, boolean last, TimeZone zone) {
         View row = LayoutInflater.from(this).inflate(R.layout.item_detail_delivery, parent, false);
         boolean open = delivery.status.isOpen();
         boolean failed = delivery.status == DeliveryStatus.FAILED;
@@ -132,7 +158,7 @@ public class DetailActivity extends AppCompatActivity {
         ImageView icon = row.findViewById(R.id.delivery_icon);
         icon.setImageResource(open ? R.drawable.ic_clock : failed ? R.drawable.ic_badge_close : R.drawable.ic_check);
         icon.setImageTintList(ColorStateList.valueOf(ink));
-        ((TextView) row.findViewById(R.id.delivery_label)).setText(delivery.destinationLabel);
+        ((TextView) row.findViewById(R.id.delivery_label)).setText(name(delivery));
         TextView detail = row.findViewById(R.id.delivery_detail);
         detail.setText(DetailFormat.delivery(delivery));
         if (open) detail.setTextColor(ink);
@@ -142,7 +168,7 @@ public class DetailActivity extends AppCompatActivity {
             row.findViewById(R.id.delivery_timeline).setVisibility(View.VISIBLE);
             ((TextView) row.findViewById(R.id.delivery_last)).setText(DetailFormat.lastAttempt(delivery));
             ((TextView) row.findViewById(R.id.delivery_last_time)).setText(DetailFormat.time(delivery.lastAttemptAt, zone));
-            row.setBackgroundColor(ContextCompat.getColor(this, R.color.open_row));
+            row.setBackground(openBackground(first, last));
         }
         if (!last) {
             LinearLayout wrapper = new LinearLayout(this);

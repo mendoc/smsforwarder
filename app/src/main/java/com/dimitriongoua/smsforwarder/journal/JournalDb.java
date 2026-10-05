@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class JournalDb extends SQLiteOpenHelper {
     private static final String NAME = "journal.db";
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     public static final long RETENTION_MS = 30L * 24 * 60 * 60 * 1000;
 
     private static JournalDb instance;
@@ -66,13 +66,15 @@ public class JournalDb extends SQLiteOpenHelper {
                 + "last_attempt_at INTEGER NOT NULL DEFAULT 0,"
                 + "last_error TEXT,"
                 + "via TEXT,"
+                + "http_code INTEGER NOT NULL DEFAULT 0,"
                 + "PRIMARY KEY (sms_id, dest_key))");
         db.execSQL("CREATE INDEX delivery_status ON delivery (status)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Première version du schéma.
+        // v2 : code HTTP de la dernière réponse (Détail d'un SMS).
+        if (oldVersion < 2) db.execSQL("ALTER TABLE delivery ADD COLUMN http_code INTEGER NOT NULL DEFAULT 0");
     }
 
     /**
@@ -174,10 +176,10 @@ public class JournalDb extends SQLiteOpenHelper {
     public void recordAttempt(long smsId, String destinationKey, SendOutcome outcome, long now, String via) {
         DeliveryStatus status = DeliveryStatus.from(outcome);
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE delivery SET attempts = attempts + 1, status = ?, last_attempt_at = ?, last_error = ?, "
+        db.execSQL("UPDATE delivery SET attempts = attempts + 1, status = ?, last_attempt_at = ?, last_error = ?, http_code = ?, "
                         + "via = CASE WHEN ? = 'sent' THEN ? ELSE via END "
                         + "WHERE sms_id = ? AND dest_key = ?",
-                new Object[]{status.code, now, outcome.getError(), status.code, via, smsId, destinationKey});
+                new Object[]{status.code, now, outcome.getError(), outcome.getHttpCode(), status.code, via, smsId, destinationKey});
     }
 
     /** Change le statut sans compter d'essai (destination supprimée, abandon…). */
@@ -335,7 +337,8 @@ public class JournalDb extends SQLiteOpenHelper {
                         cursor.getInt(cursor.getColumnIndexOrThrow("attempts")),
                         cursor.getLong(cursor.getColumnIndexOrThrow("last_attempt_at")),
                         cursor.getString(cursor.getColumnIndexOrThrow("last_error")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("via"))));
+                        cursor.getString(cursor.getColumnIndexOrThrow("via")),
+                        cursor.getInt(cursor.getColumnIndexOrThrow("http_code"))));
             }
         }
         return new ArrayList<>(byId.values());

@@ -88,7 +88,7 @@
     <string name="home_stat_pending">en attente</string>
     <string name="home_stat_failed">échec</string>
     <string name="home_stat_failed_plural">échecs</string>
-    <string name="home_alert_sub">Sans réponse. Reprise par la synchronisation.</string>
+    <string name="home_alert_sub">Sans réponse. Relancé à la synchro.</string>
     <string name="home_sims_title">Cartes SIM</string>
     <string name="home_sims_permission">Autorisez l\'accès au téléphone pour afficher les SIM et choisir celles dont les SMS sont transférés.</string>
     <string name="home_sims_allow">Autoriser</string>

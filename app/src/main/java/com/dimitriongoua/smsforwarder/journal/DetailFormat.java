@@ -43,6 +43,7 @@ public final class DetailFormat {
         switch (delivery.status) {
             case SENT:
                 return "Envoyé" + (Delivery.VIA_SYNC.equals(delivery.via) ? " par la synchronisation" : "")
+                        + (delivery.httpCode > 0 ? " · HTTP " + delivery.httpCode : "")
                         + (attempts.isEmpty() ? "" : " · " + attempts);
             case FAILED:
                 return "Échec" + (delivery.lastError == null ? "" : " · " + delivery.lastError)

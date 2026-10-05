@@ -59,9 +59,9 @@ public class HomeScreenshotTest {
         JournalDb journal = JournalDb.get(Screens.app());
         long a = Screens.record(journal, "AirtelMoney", "Vous avez recu 25 000 FCFA du 07 •• •• 31.", now - 4 * MIN,
                 Delivery.VIA_RECEPTION, SIM_AM6);
-        Screens.attempt(journal, a, "miango", SendOutcome.http(200));
-        Screens.attempt(journal, a, "sims", SendOutcome.http(200));
-        Screens.attempt(journal, a, "telegram", SendOutcome.noResponse("Délai dépassé"));
+        Screens.attempt(journal, a, Screens.MIANGO, SendOutcome.http(200));
+        Screens.attempt(journal, a, Screens.SIMS, SendOutcome.http(200));
+        Screens.attempt(journal, a, Screens.TELEGRAM, SendOutcome.noResponse("Délai dépassé"));
         Screens.allSent(journal, Screens.record(journal, "AirtelMoney", "Votre solde est 412 350 FCFA.", now - 28 * MIN,
                 Delivery.VIA_RECEPTION, SIM_AM6));
         Screens.allSent(journal, Screens.record(journal, "38643", "Vous avez envoye 15 000 FCFA.", now - 50 * MIN,

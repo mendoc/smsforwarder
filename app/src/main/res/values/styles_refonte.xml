@@ -8,6 +8,9 @@
         <item name="android:fontFamily">@font/plex_sans_regular</item>
         <item name="android:textColor">@color/ink</item>
         <item name="android:textSize">15sp</item>
+        <!-- Hauteur de ligne CSS « normal » (ascent + descent) : sans le padding de police
+             (≈ 0,1 em par texte), les écrans dérivaient de ~60 dp par rapport à la maquette. -->
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <!-- « SMS FORWARDER », « TÉLÉPHONE » : petites capitales espacées -->
