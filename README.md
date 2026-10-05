@@ -1,10 +1,20 @@
 SMS Forwarder est une application mobile permettant de transférer les SMS reçus d’un téléphone vers une autre destination.
 
 ## Flux de travail
-- Le développement se fait sur `main`, par des PR. Chaque PR vers `main` compile l’APK de debug et le joint en artefact (GitHub Actions).
+- Le développement se fait sur `main`, par des PR. Chaque PR vers `main` compile l’APK de debug et le joint en artefact (GitHub Actions). Chaque push sur `main` produit aussi un APK d’intégration.
 - Pour chaque livraison, une branche `release/x.y.z` est créée depuis `main` : le push sur `release/**` produit l’APK.
 - Le workflow peut aussi être lancé à la main (onglet Actions).
-- L’artefact s’appelle `sms-forwarder-<version>` et contient `sms-forwarder-<version>.apk`, où la version est le `versionName` de `app/build.gradle`.
+- Pour les livraisons (`release/**`) et les lancements manuels, l’APK est aussi envoyé sur Telegram (secrets `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`, à défaut `BOT_TOKEN` / `CHAT_ID`), avec la légende « SMS Forwarder <version> · <branche> · <commit> ».
+- Version affichée selon l’origine du build (SemVer : suffixe de pré-version, puis `+commit` en métadonnées) :
+
+  | Origine | `versionName` | APK |
+  |---|---|---|
+  | `release/1.3.2` | `1.3.2` | `sms-forwarder-1.3.2.apk` |
+  | push sur `main` | `1.3.2-dev.<run>+<commit>` | `sms-forwarder-1.3.2-dev.<run>.apk` |
+  | PR n° 11 | `1.3.2-pr.11.<run>+<commit>` | `sms-forwarder-1.3.2-pr.11.<run>.apk` |
+
+  Le CI calcule le suffixe (variable `VERSION_SUFFIX`, lue par `versionNameSuffix` dans `app/build.gradle`) ; un build local n’en a pas. Le `versionCode` ne change pas : la livraison s’installe toujours par-dessus un APK de test. Après chaque livraison, monter `versionName` / `versionCode` sur `main` : `main` porte toujours la prochaine version.
+- L’artefact porte le nom de l’APK sans `.apk`.
 
 ## Outil « SMS » de la console Miango (v1.2.0)
 Chaque SMS relayé est aussi envoyé à `POST https://miango.netlify.app/sms/incoming`, avec la SIM qui l'a reçu, pour être consultable dans la console Miango (Outils → SMS) :
