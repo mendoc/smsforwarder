@@ -1,119 +1,437 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Accueil (maquette « Accueil ») : état du relais, alerte d'envois en attente, cartes SIM,
+     synchronisation, puis la barre de navigation. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/paper"
+    android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
-    <LinearLayout
+    <ScrollView
+        android:id="@+id/home_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <TextView
-            style="@style/SettingsTitle"
-            android:text="@string/device_section" />
-
-        <EditText
-            android:id="@+id/device_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="none"
-            android:hint="@string/device_name_hint"
-            android:inputType="textCapSentences"
-            android:maxLength="100" />
-
-        <TextView
-            style="@style/SettingsTitle"
-            android:text="@string/sims_section" />
-
-        <TextView
-            style="@style/SettingsHelp"
-            android:text="@string/sims_help" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/sims_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="28dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="24dp">
 
-        <TextView
-            style="@style/SettingsTitle"
-            android:text="@string/senders_section" />
+            <!-- En-tête -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <TextView
-            style="@style/SettingsHelp"
-            android:text="@string/senders_help" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/allowed_senders"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="none"
-            android:gravity="top"
-            android:hint="@string/senders_hint"
-            android:inputType="textMultiLine|textNoSuggestions"
-            android:minLines="4" />
+                    <TextView
+                        style="@style/Refonte.Text.Overline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home_overline" />
 
-        <TextView
-            style="@style/SettingsTitle"
-            android:text="@string/rules_section" />
+                    <TextView
+                        android:id="@+id/home_device"
+                        style="@style/Refonte.Text.H1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:ellipsize="end"
+                        android:maxLines="1" />
+                </LinearLayout>
 
-        <TextView
-            style="@style/SettingsHelp"
-            android:text="@string/rules_help" />
+                <ImageButton
+                    android:id="@+id/home_settings"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_round_button"
+                    android:contentDescription="@string/home_settings"
+                    android:padding="12dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_tab_settings"
+                    app:tint="@color/ink" />
+            </LinearLayout>
 
-        <EditText
-            android:id="@+id/filter_rules"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="none"
-            android:fontFamily="monospace"
-            android:gravity="top"
-            android:hint="@string/rules_hint"
-            android:inputType="textMultiLine|textNoSuggestions"
-            android:minLines="3" />
+            <!-- État du relais -->
+            <LinearLayout
+                android:id="@+id/home_hero"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_card_dark"
+                android:orientation="vertical"
+                android:paddingStart="22dp"
+                android:paddingTop="22dp"
+                android:paddingEnd="22dp"
+                android:paddingBottom="20dp">
 
-        <TextView
-            style="@style/SettingsTitle"
-            android:text="@string/sync_section" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="-6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/sync_status"
-            style="@style/SettingsHelp" />
+                    <View
+                        android:id="@+id/home_live_dot"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:background="@drawable/bg_live_dot" />
 
-        <Button
-            android:id="@+id/sync_now"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/sync_now" />
+                    <TextView
+                        android:id="@+id/home_live_label"
+                        style="@style/Refonte.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/plex_sans_semibold"
+                        android:textColor="@color/mint"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
-        <Button
-            android:id="@+id/open_destinations"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/destinations_open" />
+                <TextView
+                    android:id="@+id/home_headline"
+                    style="@style/Refonte.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/plex_sans_bold"
+                    android:letterSpacing="-0.02"
+                    android:lineSpacingExtra="6sp"
+                    android:textColor="@color/white"
+                    android:textSize="30sp" />
 
-        <Button
-            android:id="@+id/open_journal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/journal_open" />
+                <TextView
+                    android:id="@+id/home_last"
+                    style="@style/Refonte.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:lineSpacingExtra="7sp"
+                    android:textColor="@color/hero_text_2" />
 
-        <Button
-            android:id="@+id/save"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/save" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/app_version"
-            style="@style/SettingsHelp"
-            android:layout_marginTop="24dp"
-            android:gravity="center" />
-    </LinearLayout>
-</ScrollView>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/home_stat_relayed"
+                            style="@style/Refonte.Text.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            style="@style/Refonte.Text.StatLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/home_stat_relayed" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/home_stat_pending"
+                            style="@style/Refonte.Text.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            style="@style/Refonte.Text.StatLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/home_stat_pending" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/home_stat_failed"
+                            style="@style/Refonte.Text.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:id="@+id/home_stat_failed_label"
+                            style="@style/Refonte.Text.StatLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/home_stat_failed" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Envois en attente -->
+            <LinearLayout
+                android:id="@+id/home_alert"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_alert_amber"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="14dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_clock"
+                    app:tint="@color/amber_ink" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/home_alert_title"
+                        style="@style/Refonte.Text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plex_sans_semibold"
+                        android:lineSpacingExtra="4sp"
+                        android:textColor="@color/amber_ink" />
+
+                    <TextView
+                        style="@style/Refonte.Text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:lineSpacingExtra="4sp"
+                        android:text="@string/home_alert_sub"
+                        android:textColor="@color/amber_ink"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/amber_ink" />
+            </LinearLayout>
+
+            <!-- Cartes SIM -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/Refonte.Text.H2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:accessibilityHeading="true"
+                    android:text="@string/home_sims_title" />
+
+                <TextView
+                    android:id="@+id/home_sims_count"
+                    style="@style/Refonte.Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/home_sims"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:id="@+id/home_sims_permission"
+                style="@style/Refonte.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/Refonte.Text.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_sims_permission" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/home_sims_allow"
+                    style="@style/Refonte.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/home_sims_allow" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/home_sims_note"
+                style="@style/Refonte.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/sims_unknown_blocked"
+                android:visibility="gone" />
+
+            <!-- Synchronisation -->
+            <LinearLayout
+                style="@style/Refonte.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:padding="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Refonte.Text.H2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:accessibilityHeading="true"
+                        android:text="@string/home_sync_title" />
+
+                    <TextView
+                        android:id="@+id/home_sync_badge"
+                        style="@style/Refonte.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_pine"
+                        android:fontFamily="@font/plex_sans_semibold"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:textColor="@color/pine"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Refonte.Text.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/home_sync_last"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/home_sync_last"
+                            style="@style/Refonte.Text.Mono"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/ink"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Refonte.Text.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/home_sync_checked"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/home_sync_checked"
+                            style="@style/Refonte.Text.Mono"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/ink"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/home_sync_now"
+                    style="@style/Refonte.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:minHeight="48dp"
+                    android:text="@string/sync_now"
+                    android:textSize="15sp"
+                    app:icon="@drawable/ic_refresh" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/view_tab_bar" />
+</LinearLayout>

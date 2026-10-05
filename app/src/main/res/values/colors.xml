@@ -24,4 +24,15 @@
     <color name="red_soft">#FFF9E3E0</color>
     <color name="blue_ink">#FF1D4F91</color>
     <color name="blue_soft">#FFE4ECF7</color>
+    <color name="hero">#FF10241F</color>
+    <color name="hero_text_2">#FFC9D6D1</color>
+    <color name="mint">#FF8FE0C2</color>
+    <color name="hero_amber">#FFFFD18A</color>
+    <color name="field_line">#FFC9CEC7</color>
+    <color name="button_line">#FFD5DAD3</color>
+    <color name="dash">#FF9AA39E</color>
+    <color name="code_text">#FFD7F2E7</color>
+    <color name="red_line">#FFE3A49D</color>
+    <color name="red_text">#FF7D1D16</color>
+    <color name="toggle_off">#FFC9CEC7</color>
 </resources>

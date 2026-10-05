@@ -37,6 +37,7 @@ public class DestinationsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_destinations);
         setTitle(R.string.destinations_title);
+        TabBar.bind(this, TabBar.Tab.DESTINATIONS);
         store = DestinationStore.with(this);
 
         urlList = findViewById(R.id.url_list);

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Carte SIM (maquette « Carte SIM ») : identité et chiffres, transfert, nom, règles. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/paper"
+    android:orientation="vertical"
+    tools:context=".activity.SimActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/simd_back"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sim_back"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            style="@style/Refonte.Text.H2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:accessibilityHeading="true"
+            android:text="@string/sim_title" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="28dp">
+
+            <!-- Identité de la SIM -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_dark"
+                android:orientation="vertical"
+                android:padding="22dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/simd_slot"
+                        style="@style/Refonte.Text.Mono"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_sim_outline"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:textColor="@color/mint" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_sim"
+                        app:tint="@color/mint" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/simd_name"
+                    style="@style/Refonte.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/plex_sans_bold"
+                    android:letterSpacing="-0.02"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:textSize="32sp" />
+
+                <TextView
+                    android:id="@+id/simd_sub"
+                    style="@style/Refonte.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="@color/hero_text_2" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/simd_today"
+                            style="@style/Refonte.Text.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            style="@style/Refonte.Text.StatLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/sim_stat_today" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/simd_last"
+                            style="@style/Refonte.Text.Stat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            style="@style/Refonte.Text.StatLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/sim_stat_last" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Transfert -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="60dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Refonte.Text.Title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sim_forward_title" />
+
+                        <TextView
+                            style="@style/Refonte.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/sim_forward_sub" />
+                    </LinearLayout>
+
+                    <com.dimitriongoua.smsforwarder.widget.Toggle
+                        android:id="@+id/simd_toggle"
+                        android:layout_width="52dp"
+                        android:layout_height="44dp"
+                        android:contentDescription="@string/sim_forward_title" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/simd_note"
+                    style="@style/Refonte.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_info_blue"
+                    android:lineSpacingExtra="5sp"
+                    android:paddingStart="12dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="10dp"
+                    android:textColor="@color/blue_ink"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Nom -->
+            <TextView
+                style="@style/Refonte.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/plex_sans_semibold"
+                android:labelFor="@id/simd_name_field"
+                android:text="@string/sim_name_label"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/simd_name_field"
+                style="@style/Refonte.Field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:autofillHints=""
+                android:background="@drawable/bg_field_large"
+                android:inputType="textCapSentences"
+                android:maxLength="60"
+                android:minHeight="52dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
+
+            <TextView
+                style="@style/Refonte.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/sims_help" />
+
+            <!-- Règles -->
+            <TextView
+                style="@style/Refonte.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:accessibilityHeading="true"
+                android:fontFamily="@font/plex_sans_bold"
+                android:text="@string/sim_rules_title"
+                android:textSize="16sp" />
+
+            <include
+                android:id="@+id/simd_rule_1"
+                layout="@layout/item_numbered_rule" />
+
+            <include
+                android:id="@+id/simd_rule_2"
+                layout="@layout/item_numbered_rule" />
+
+            <include
+                android:id="@+id/simd_rule_3"
+                layout="@layout/item_numbered_rule" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="20dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/simd_save"
+                style="@style/Refonte.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sim_save" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

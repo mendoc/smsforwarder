@@ -229,6 +229,37 @@ public class JournalDb extends SQLiteOpenHelper {
         return sims;
     }
 
+    /** Chiffres de l'Accueil ; {@code since} : début du jour local. */
+    public HomeStats homeStats(long since) {
+        SQLiteDatabase db = getReadableDatabase();
+        HomeStats stats = new HomeStats();
+        String day = String.valueOf(since);
+        String sent = "id IN (SELECT sms_id FROM delivery WHERE status = '" + DeliveryStatus.SENT.code + "')";
+        try (Cursor cursor = db.rawQuery("SELECT subscription_id, COUNT(*) FROM sms WHERE received_at >= ? AND "
+                + sent + " GROUP BY subscription_id", new String[]{day})) {
+            while (cursor.moveToNext()) {
+                stats.relayedTodayBySim.put(cursor.getInt(0), cursor.getInt(1));
+                stats.relayedToday += cursor.getInt(1);
+            }
+        }
+        try (Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM delivery JOIN sms ON sms.id = delivery.sms_id "
+                + "WHERE sms.received_at >= ? AND delivery.status = ?", new String[]{day, DeliveryStatus.FAILED.code})) {
+            if (cursor.moveToFirst()) stats.failedToday = cursor.getInt(0);
+        }
+        stats.open = countOpen();
+        try (Cursor cursor = db.rawQuery("SELECT DISTINCT dest_label FROM delivery WHERE status IN (?, ?) "
+                + "ORDER BY dest_label", new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            while (cursor.moveToNext()) stats.openDestinations.add(cursor.getString(0));
+        }
+        try (Cursor cursor = db.rawQuery("SELECT subscription_id, MAX(received_at) FROM sms GROUP BY subscription_id", null)) {
+            while (cursor.moveToNext()) stats.lastReceivedBySim.put(cursor.getInt(0), cursor.getLong(1));
+        }
+        List<JournalEntry> last = entries("SELECT * FROM sms WHERE " + sent
+                + " ORDER BY received_at DESC, id DESC LIMIT 1", null);
+        stats.lastRelayed = last.isEmpty() ? null : last.get(0);
+        return stats;
+    }
+
     /** Tests uniquement : ferme l'instance unique pour repartir d'une base neuve. */
     public static synchronized void resetForTests() {
         if (instance != null) instance.close();

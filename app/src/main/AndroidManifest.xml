@@ -65,7 +65,19 @@
             android:parentActivityName=".activity.MainActivity" />
 
         <activity
+            android:name=".activity.ReglagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmsForwarder.Refonte" />
+
+        <activity
+            android:name=".activity.SimActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte" />
+
+        <activity
             android:name=".activity.MainActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

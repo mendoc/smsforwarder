@@ -55,6 +55,16 @@ Chaque SMS relayé part vers toutes les destinations actives, l'une après l'aut
 
 Les secrets (valeurs d'en-tête, token du bot) ne sont jamais écrits dans les logs.
 
+## Refonte des interfaces (v1.4.0)
+Les écrans suivent la maquette Claude Design « SMS Forwarder — refonte » (thème `Theme.SmsForwarder.Refonte`, styles `res/values/styles_refonte.xml`, polices IBM Plex). Suivi : issue #14.
+- **Navigation** à 4 onglets en bas (`activity/TabBar`) : Accueil, Journal, Destinations, Réglages. L'Accueil reste à la racine : Retour y ramène toujours.
+- **Accueil** (`MainActivity`) : état du relais (actif s'il reçoit les SMS et qu'une destination est active), dernier SMS relayé, chiffres du jour (relayés, en attente, échecs), alerte des envois en attente (ouvre le Journal filtré), cartes SIM avec interrupteur de transfert et état, synchronisation.
+- **Carte SIM** (`SimActivity`) : identité, chiffres du jour, transfert, nom envoyé à Miango, règles de la désactivation.
+- **Réglages** (`ReglagesActivity`) : autorisations manquantes, nom et identifiant du téléphone, expéditeurs autorisés en étiquettes (toucher pour retirer, « + Ajouter »), règles avancées, version.
+- Interrupteur `widget/Toggle` (52 × 32 dp) ; textes calculés dans `journal/HomeFormat`, chiffres lus par `JournalDb.homeStats`.
+
+Chaque écran a son test de capture (`*ScreenshotTest`, données d'exemple de `Screens`), publié par le CI sur la branche `screenshots/<branche>` et comparé à la maquette.
+
 ## Journal des SMS (v1.3.0)
 L'écran « Journal des SMS » liste les SMS relayés ces **30 derniers jours** (SQLite local, purge automatique), du plus récent au plus ancien, avec un chargement progressif en fin de liste. Chaque entrée affiche la date de réception, l'expéditeur, la SIM et un extrait (texte complet en touchant l'entrée), puis, pour chaque destination : statut (`envoyé`, `en échec`, `nouvelle tentative`, `en attente`), nombre d'essais, date du dernier essai et erreur. Le journal ne contient aucun secret (URL sans paramètres, erreurs masquées).
 

@@ -45,7 +45,7 @@ import java.util.TimeZone;
  */
 @RunWith(RobolectricTestRunner.class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = 33, qualifiers = "w390dp-h844dp-port-xhdpi")
+@Config(sdk = 33, qualifiers = "w390dp-h1160dp-port-xhdpi")
 public class JournalScreenshotTest {
     private static final TimeZone LIBREVILLE = TimeZone.getTimeZone("Africa/Libreville");
     private TimeZone previousZone;

@@ -53,6 +53,8 @@ import java.util.concurrent.Executors;
  * de liste ; toucher un SMS affiche son texte entier et le détail des envois.
  */
 public class JournalActivity extends AppCompatActivity {
+    /** Ouvre le journal filtré sur les envois en attente (alerte de l'Accueil). */
+    public static final String EXTRA_PENDING = "pending";
     private static final int PAGE_SIZE = 30;
     private static final long SEARCH_DELAY_MS = 250;
 
@@ -75,7 +77,8 @@ public class JournalActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_journal);
         setTitle(R.string.journal_title);
-        findViewById(R.id.journal_back).setOnClickListener(v -> finish());
+        TabBar.bind(this, TabBar.Tab.JOURNAL);
+        if (getIntent().getBooleanExtra(EXTRA_PENDING, false)) query = query.withStatus(JournalQuery.Status.OPEN);
         empty = findViewById(R.id.journal_empty);
         filters = findViewById(R.id.journal_filters);
 
