@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 
 import com.dimitriongoua.smsforwarder.model.SMS;
 import com.dimitriongoua.smsforwarder.send.SendOutcome;
@@ -198,10 +199,40 @@ public class JournalDb extends SQLiteOpenHelper {
      * @param before dernière entrée de la page précédente, null pour la première page
      */
     public List<JournalEntry> page(JournalEntry before, int limit) {
-        String where = before == null ? "" : "WHERE received_at < ? OR (received_at = ? AND id < ?) ";
-        String[] args = before == null ? null : new String[]{
-                String.valueOf(before.receivedAt), String.valueOf(before.receivedAt), String.valueOf(before.id)};
-        return entries("SELECT * FROM sms " + where + "ORDER BY received_at DESC, id DESC LIMIT " + limit, args);
+        return page(before, limit, JournalQuery.ALL);
+    }
+
+    /** Page du journal restreinte aux SMS retenus par {@code query}. */
+    public List<JournalEntry> page(JournalEntry before, int limit, JournalQuery query) {
+        List<String> conditions = new ArrayList<>();
+        List<String> args = new ArrayList<>();
+        query.appendConditions(conditions, args);
+        if (before != null) {
+            conditions.add("(received_at < ? OR (received_at = ? AND id < ?))");
+            args.add(String.valueOf(before.receivedAt));
+            args.add(String.valueOf(before.receivedAt));
+            args.add(String.valueOf(before.id));
+        }
+        String where = conditions.isEmpty() ? "" : "WHERE " + TextUtils.join(" AND ", conditions) + " ";
+        return entries("SELECT * FROM sms " + where + "ORDER BY received_at DESC, id DESC LIMIT " + limit,
+                args.isEmpty() ? null : args.toArray(new String[0]));
+    }
+
+    /** SIM présentes dans le journal (identifiant d'abonnement → nom), la plus récente d'abord. */
+    public Map<Integer, String> sims() {
+        Map<Integer, String> sims = new LinkedHashMap<>();
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+                "SELECT subscription_id, sim_slot, sim_carrier, sim_label, MAX(received_at) AS last FROM sms "
+                        + "GROUP BY subscription_id ORDER BY last DESC", null)) {
+            while (cursor.moveToNext()) sims.put(cursor.getInt(0), simLabel(cursor));
+        }
+        return sims;
+    }
+
+    /** Tests uniquement : ferme l'instance unique pour repartir d'une base neuve. */
+    public static synchronized void resetForTests() {
+        if (instance != null) instance.close();
+        instance = null;
     }
 
     /** Entrées dont au moins un envoi est encore à faire, de la plus ancienne à la plus récente. */

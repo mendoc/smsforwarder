@@ -36,6 +36,39 @@ public final class JournalFormat {
         return text.toString();
     }
 
+    /** « 14:26 » */
+    public static String time(long millis, TimeZone zone) {
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.FRENCH);
+        format.setTimeZone(zone);
+        return format.format(new Date(millis));
+    }
+
+    /** Titre d'un jour du journal : « Aujourd'hui · 05/10 », « Hier · 04/10 », « Samedi 03/10 ». */
+    public static String day(long millis, long now, TimeZone zone) {
+        SimpleDateFormat date = new SimpleDateFormat("dd/MM", Locale.FRENCH);
+        date.setTimeZone(zone);
+        int days = daysBetween(millis, now, zone);
+        if (days == 0) return "Aujourd'hui · " + date.format(new Date(millis));
+        if (days == 1) return "Hier · " + date.format(new Date(millis));
+        SimpleDateFormat weekday = new SimpleDateFormat("EEEE", Locale.FRENCH);
+        weekday.setTimeZone(zone);
+        String name = weekday.format(new Date(millis));
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1) + " " + date.format(new Date(millis));
+    }
+
+    /** Même jour du calendrier local. */
+    public static boolean sameDay(long a, long b, TimeZone zone) {
+        return daysBetween(a, b, zone) == 0;
+    }
+
+    private static int daysBetween(long earlier, long later, TimeZone zone) {
+        return (int) (dayNumber(later, zone) - dayNumber(earlier, zone));
+    }
+
+    private static long dayNumber(long millis, TimeZone zone) {
+        return Math.floorDiv(millis + zone.getOffset(millis), 24L * 60 * 60 * 1000);
+    }
+
     public static String dateTime(long millis, TimeZone zone) {
         SimpleDateFormat format = new SimpleDateFormat("dd/MM HH:mm:ss", Locale.FRENCH);
         format.setTimeZone(zone);

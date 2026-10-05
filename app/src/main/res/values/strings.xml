@@ -47,6 +47,15 @@
     <string name="telegram_incomplete">Renseignez le token et la conversation pour activer Telegram.</string>
     <string name="journal_open">Journal des SMS</string>
     <string name="journal_title">Journal (30 jours)</string>
+    <string name="journal_heading">Journal</string>
+    <string name="journal_subtitle">SMS relayés et leurs envois, conservés 30 jours.</string>
+    <string name="journal_back">Retour</string>
+    <string name="journal_search_hint">Expéditeur, montant, référence…</string>
+    <string name="journal_filter_all">Tout</string>
+    <string name="journal_filter_open">En attente</string>
+    <string name="journal_filter_open_count">En attente · %1$d</string>
+    <string name="journal_filter_failed">Échecs</string>
+    <string name="journal_no_match">Aucun SMS ne correspond à ce filtre.</string>
     <string name="journal_empty">Aucun SMS relayé ces 30 derniers jours.</string>
     <string name="journal_no_destination">Aucune destination active à la réception.</string>
     <string name="journal_loading">Chargement…</string>

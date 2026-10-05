@@ -58,6 +58,11 @@ Les secrets (valeurs d'en-tête, token du bot) ne sont jamais écrits dans les l
 ## Journal des SMS (v1.3.0)
 L'écran « Journal des SMS » liste les SMS relayés ces **30 derniers jours** (SQLite local, purge automatique), du plus récent au plus ancien, avec un chargement progressif en fin de liste. Chaque entrée affiche la date de réception, l'expéditeur, la SIM et un extrait (texte complet en touchant l'entrée), puis, pour chaque destination : statut (`envoyé`, `en échec`, `nouvelle tentative`, `en attente`), nombre d'essais, date du dernier essai et erreur. Le journal ne contient aucun secret (URL sans paramètres, erreurs masquées).
 
+Depuis la v1.4.0, l'écran suit la maquette de la refonte (Claude Design « SMS Forwarder — refonte ») : polices IBM Plex Sans et Mono embarquées (`res/font`, licence SIL OFL dans `licenses/`), recherche dans l'expéditeur et le texte, filtres **Tout / En attente / Échecs** et une puce par SIM quand le journal en contient plusieurs (`journal/JournalQuery`), SMS groupés par jour (« Aujourd'hui », « Hier », jour de la semaine), et étiquettes par SMS : SIM, « Repris par synchro », puis l'état de chaque envoi (résumé en « ✓ N destinations » quand tout est envoyé, `journal/JournalBadges`). Une carte avec un envoi en attente est bordée d'orange.
+
+### Captures d'écran sans téléphone
+`JournalScreenshotTest` (Robolectric, rendu graphique natif, 390 × 844 dp en xhdpi) remplit un journal d'exemple, vérifie les filtres et enregistre `app/build/screenshots/*.png`. Le CI publie ces images, seules, sur la branche `screenshots/<branche>` (réécrite à chaque run) : `git fetch origin screenshots/<branche>` permet de les comparer à la maquette.
+
 ## Synchronisation des SMS manqués (v1.3.0)
 Une coupure réseau touche le téléphone entier, donc toutes ses SIM. L'application garde l'**horodatage de la dernière synchronisation réussie** et vérifie que tous les SMS reçus depuis ont été relayés :
 1. **Point de départ** : la réception du premier SMS envoyé avec succès. Les SMS antérieurs ne sont jamais repris.
