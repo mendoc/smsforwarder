@@ -25,7 +25,6 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:textColorPrimary">@color/ink</item>
         <item name="android:fontFamily">@font/plex_sans_regular</item>
-        <item name="fontFamily">@font/plex_sans_regular</item>
     </style>
 
     <style name="SettingsTitle">

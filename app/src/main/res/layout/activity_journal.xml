@@ -110,5 +110,5 @@
         android:paddingTop="4dp"
         android:paddingEnd="20dp"
         android:paddingBottom="24dp"
-        android:scrollbarStyle="outsideOverlay" />
+        android:scrollbars="none" />
 </LinearLayout>
