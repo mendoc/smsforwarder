@@ -229,6 +229,12 @@ public class JournalDb extends SQLiteOpenHelper {
         return sims;
     }
 
+    /** Un SMS du journal avec ses envois, null s'il n'existe plus (purgé). */
+    public JournalEntry entry(long id) {
+        List<JournalEntry> found = entries("SELECT * FROM sms WHERE id = ?", new String[]{String.valueOf(id)});
+        return found.isEmpty() ? null : found.get(0);
+    }
+
     /** Chiffres de l'Accueil ; {@code since} : début du jour local. */
     public HomeStats homeStats(long since) {
         SQLiteDatabase db = getReadableDatabase();
@@ -250,6 +256,13 @@ public class JournalDb extends SQLiteOpenHelper {
         try (Cursor cursor = db.rawQuery("SELECT DISTINCT dest_label FROM delivery WHERE status IN (?, ?) "
                 + "ORDER BY dest_label", new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
             while (cursor.moveToNext()) stats.openDestinations.add(cursor.getString(0));
+        }
+        try (Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT sms_id), MAX(sms_id) FROM delivery WHERE status IN (?, ?)",
+                new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            if (cursor.moveToFirst()) {
+                stats.openSms = cursor.getInt(0);
+                stats.openSmsId = cursor.isNull(1) ? -1 : cursor.getLong(1);
+            }
         }
         try (Cursor cursor = db.rawQuery("SELECT subscription_id, MAX(received_at) FROM sms GROUP BY subscription_id", null)) {
             while (cursor.moveToNext()) stats.lastReceivedBySim.put(cursor.getInt(0), cursor.getLong(1));

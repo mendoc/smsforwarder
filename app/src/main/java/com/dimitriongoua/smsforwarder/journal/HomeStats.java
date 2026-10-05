@@ -13,6 +13,9 @@ public final class HomeStats {
     public int failedToday;
     /** Envois encore à faire (en attente ou à retenter), tous jours confondus. */
     public int open;
+    /** SMS qui ont au moins un envoi à faire, et le plus récent d'entre eux (-1 s'il n'y en a pas). */
+    public int openSms;
+    public long openSmsId = -1;
     /** Destinations de ces envois à faire, par ordre alphabétique. */
     public final List<String> openDestinations = new ArrayList<>();
     /** Dernier SMS envoyé vers au moins une destination, null s'il n'y en a pas. */

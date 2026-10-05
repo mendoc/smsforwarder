@@ -112,12 +112,12 @@ public class HomeScreenshotTest {
     }
 
     @Test
-    public void lAlerteOuvreLeJournalFiltre() {
+    public void lAlerteOuvreLeDetailDuSmsEnAttente() {
         Activity activity = open();
         activity.findViewById(R.id.home_alert).performClick();
         Intent next = Shadows.shadowOf(activity).getNextStartedActivity();
-        assertEquals(JournalActivity.class.getName(), next.getComponent().getClassName());
-        assertTrue(next.getBooleanExtra(JournalActivity.EXTRA_PENDING, false));
+        assertEquals(DetailActivity.class.getName(), next.getComponent().getClassName());
+        assertTrue(next.getLongExtra(DetailActivity.EXTRA_ID, -1) > 0);
     }
 
     private static String text(Activity activity, int id) {

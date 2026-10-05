@@ -70,6 +70,12 @@
             android:theme="@style/Theme.SmsForwarder.Refonte" />
 
         <activity
+            android:name=".activity.DetailActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.JournalActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte" />
+
+        <activity
             android:name=".activity.SimActivity"
             android:exported="false"
             android:parentActivityName=".activity.MainActivity"

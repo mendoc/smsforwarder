@@ -131,6 +131,20 @@
     <string name="destination_testing">Test en cours…</string>
     <string name="destination_toggle">Activer %1$s</string>
     <string name="telegram_edit_title">Telegram</string>
+    <!-- Refonte : Détail d'un SMS -->
+    <string name="detail_back">Retour au journal</string>
+    <string name="detail_sim">Reçu sur</string>
+    <string name="detail_carrier">Opérateur</string>
+    <string name="detail_via">Relayé</string>
+    <string name="detail_rule">Règle</string>
+    <string name="detail_sends">Envois</string>
+    <string name="detail_next">Prochain essai</string>
+    <string name="detail_next_value">synchronisation</string>
+    <string name="detail_copy">Copier le texte du SMS</string>
+    <string name="detail_copied">Texte du SMS copié</string>
+    <string name="detail_retrying">Nouvel essai en cours…</string>
+    <string name="detail_rules">Un envoi réussi n\'est jamais refait. Sans réponse pendant 7 jours, l\'envoi est abandonné.</string>
+    <string name="detail_gone">Ce SMS n\'est plus dans le journal.</string>
     <!-- Refonte : Carte SIM -->
     <string name="sim_title">Carte SIM</string>
     <string name="sim_back">Retour</string>

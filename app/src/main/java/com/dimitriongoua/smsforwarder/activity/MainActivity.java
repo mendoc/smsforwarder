@@ -66,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
         TabBar.bind(this, TabBar.Tab.HOME);
         findViewById(R.id.home_settings).setOnClickListener(v ->
                 TabBar.open(this, TabBar.Tab.HOME, TabBar.Tab.SETTINGS));
-        findViewById(R.id.home_alert).setOnClickListener(v -> startActivity(
-                new Intent(this, JournalActivity.class).putExtra(JournalActivity.EXTRA_PENDING, true)));
         findViewById(R.id.home_sims_allow).setOnClickListener(v -> requestPermissions());
         syncNow = findViewById(R.id.home_sync_now);
         syncNow.setOnClickListener(v -> syncNow());
@@ -132,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
                 ? R.string.home_stat_failed_plural : R.string.home_stat_failed);
 
         findViewById(R.id.home_alert).setVisibility(stats.open > 0 ? View.VISIBLE : View.GONE);
+        // Un seul SMS en attente : son Détail ; plusieurs : le Journal filtré « En attente ».
+        findViewById(R.id.home_alert).setOnClickListener(v -> startActivity(stats.openSms == 1
+                ? new Intent(this, DetailActivity.class).putExtra(DetailActivity.EXTRA_ID, stats.openSmsId)
+                : new Intent(this, JournalActivity.class).putExtra(JournalActivity.EXTRA_PENDING, true)));
         ((TextView) findViewById(R.id.home_alert_title)).setText(HomeFormat.pending(stats.open, stats.openDestinations));
 
         renderSims(stats, zone);

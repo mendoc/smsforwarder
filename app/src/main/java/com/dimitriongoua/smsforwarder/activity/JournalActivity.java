@@ -1,5 +1,6 @@
 package com.dimitriongoua.smsforwarder.activity;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -28,7 +29,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.dimitriongoua.smsforwarder.R;
-import com.dimitriongoua.smsforwarder.journal.Delivery;
 import com.dimitriongoua.smsforwarder.journal.JournalBadges;
 import com.dimitriongoua.smsforwarder.journal.JournalDb;
 import com.dimitriongoua.smsforwarder.journal.JournalEntry;
@@ -38,10 +38,8 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +48,7 @@ import java.util.concurrent.Executors;
  * Journal des SMS traités ces 30 derniers jours (maquette « SMS Forwarder — refonte ») :
  * recherche dans l'expéditeur et le texte, filtres Tout / En attente / Échecs / par SIM,
  * SMS groupés par jour avec l'état de chaque envoi en étiquettes. Chargé page par page en fin
- * de liste ; toucher un SMS affiche son texte entier et le détail des envois.
+ * de liste ; toucher un SMS ouvre son Détail ({@link DetailActivity}).
  */
 public class JournalActivity extends AppCompatActivity {
     /** Ouvre le journal filtré sur les envois en attente (alerte de l'Accueil). */
@@ -61,7 +59,6 @@ public class JournalActivity extends AppCompatActivity {
     private final ExecutorService reader = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
     private final List<JournalEntry> entries = new ArrayList<>();
-    private final Set<Long> expanded = new HashSet<>();
     private final Runnable searchReload = this::reload;
     private EntryAdapter adapter;
     private TextView empty;
@@ -103,11 +100,8 @@ public class JournalActivity extends AppCompatActivity {
         ListView list = findViewById(R.id.journal_list);
         adapter = new EntryAdapter();
         list.setAdapter(adapter);
-        list.setOnItemClickListener((parent, view, position, id) -> {
-            long entryId = entries.get(position).id;
-            if (!expanded.remove(entryId)) expanded.add(entryId);
-            adapter.notifyDataSetChanged();
-        });
+        list.setOnItemClickListener((parent, view, position, id) -> startActivity(
+                new Intent(this, DetailActivity.class).putExtra(DetailActivity.EXTRA_ID, entries.get(position).id)));
         list.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -311,8 +305,6 @@ public class JournalActivity extends AppCompatActivity {
             View view = convertView != null ? convertView
                     : LayoutInflater.from(parent.getContext()).inflate(R.layout.item_journal, parent, false);
             JournalEntry entry = getItem(position);
-            boolean open = expanded.contains(entry.id);
-
             TextView day = view.findViewById(R.id.journal_day);
             boolean firstOfDay = position == 0
                     || !JournalFormat.sameDay(getItem(position - 1).receivedAt, entry.receivedAt, zone);
@@ -324,24 +316,13 @@ public class JournalActivity extends AppCompatActivity {
             ((TextView) view.findViewById(R.id.journal_sender)).setText(entry.sender);
             ((TextView) view.findViewById(R.id.journal_time)).setText(JournalFormat.time(entry.receivedAt, zone));
             TextView body = view.findViewById(R.id.journal_body);
-            body.setText(open ? entry.body : JournalFormat.excerpt(entry.body));
-            body.setMaxLines(open ? Integer.MAX_VALUE : 3);
+            body.setText(JournalFormat.excerpt(entry.body));
+            body.setMaxLines(3);
 
             ChipGroup badges = view.findViewById(R.id.journal_badges);
             badges.removeAllViews();
             for (JournalBadges.Badge badge : JournalBadges.of(entry)) badges.addView(badgeView(badge));
 
-            TextView deliveries = view.findViewById(R.id.journal_deliveries);
-            deliveries.setVisibility(open ? View.VISIBLE : View.GONE);
-            if (open) {
-                StringBuilder lines = new StringBuilder();
-                for (Delivery delivery : entry.deliveries) {
-                    if (lines.length() > 0) lines.append('\n');
-                    lines.append(JournalFormat.delivery(delivery, zone));
-                }
-                if (lines.length() == 0) lines.append(getString(R.string.journal_no_destination));
-                deliveries.setText(lines);
-            }
             return view;
         }
     }

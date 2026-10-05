@@ -35,4 +35,6 @@
     <color name="red_line">#FFE3A49D</color>
     <color name="red_text">#FF7D1D16</color>
     <color name="toggle_off">#FFC9CEC7</color>
+    <color name="timeline">#FFEBD3AE</color>
+    <color name="open_row">#FFFFFAF1</color>
 </resources>
