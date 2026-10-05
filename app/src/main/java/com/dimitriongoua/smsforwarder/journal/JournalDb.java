@@ -260,6 +260,21 @@ public class JournalDb extends SQLiteOpenHelper {
         return stats;
     }
 
+    /**
+     * Par destination (clé du journal) : {dernier envoi réussi, envois à faire}, pour l'écran
+     * Destinations.
+     */
+    public Map<String, long[]> destinationStats() {
+        Map<String, long[]> stats = new LinkedHashMap<>();
+        try (Cursor cursor = getReadableDatabase().rawQuery("SELECT dest_key, "
+                + "MAX(CASE WHEN status = ? THEN last_attempt_at ELSE 0 END), "
+                + "SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) FROM delivery GROUP BY dest_key",
+                new String[]{DeliveryStatus.SENT.code, DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            while (cursor.moveToNext()) stats.put(cursor.getString(0), new long[]{cursor.getLong(1), cursor.getLong(2)});
+        }
+        return stats;
+    }
+
     /** Tests uniquement : ferme l'instance unique pour repartir d'une base neuve. */
     public static synchronized void resetForTests() {
         if (instance != null) instance.close();

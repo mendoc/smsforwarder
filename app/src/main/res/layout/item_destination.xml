@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Carte d'une destination : icône, nom, URL, interrupteur, en-tête masqué, état et « Tester ». -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dest_card"
+    style="@style/Refonte.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="18dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/dest_open"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minHeight="44dp"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/dest_icon_box"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_icon_url">
+
+                <TextView
+                    android:id="@+id/dest_icon_text"
+                    style="@style/Refonte.Text.Mono"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/plex_mono_medium"
+                    android:gravity="center"
+                    android:text="@string/destination_url_badge"
+                    android:textColor="@color/pine"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/dest_icon_image"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_tab_destinations"
+                    android:visibility="gone"
+                    app:tint="@color/blue_ink" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/dest_name"
+                    style="@style/Refonte.Text.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/dest_url"
+                    style="@style/Refonte.Text.Mono"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/ink_2"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.dimitriongoua.smsforwarder.widget.Toggle
+            android:id="@+id/dest_toggle"
+            android:layout_width="52dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="12dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dest_header"
+        style="@style/Refonte.Text.Mono"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_header_chip"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"
+        android:textColor="@color/ink_2"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="14dp"
+        android:background="@color/line_soft" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dest_status_icon"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:importantForAccessibility="no" />
+
+        <TextView
+            android:id="@+id/dest_status"
+            style="@style/Refonte.Text.Caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dest_test"
+            style="@style/Refonte.Button.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/destination_test" />
+    </LinearLayout>
+</LinearLayout>

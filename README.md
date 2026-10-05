@@ -61,6 +61,7 @@ Les écrans suivent la maquette Claude Design « SMS Forwarder — refonte » (t
 - **Accueil** (`MainActivity`) : état du relais (actif s'il reçoit les SMS et qu'une destination est active), dernier SMS relayé, chiffres du jour (relayés, en attente, échecs), alerte des envois en attente (ouvre le Journal filtré), cartes SIM avec interrupteur de transfert et état, synchronisation.
 - **Carte SIM** (`SimActivity`) : identité, chiffres du jour, transfert, nom envoyé à Miango, règles de la désactivation.
 - **Réglages** (`ReglagesActivity`) : autorisations manquantes, nom et identifiant du téléphone, expéditeurs autorisés en étiquettes (toucher pour retirer, « + Ajouter »), règles avancées, version.
+- **Destinations** (`DestinationsActivity`) : une carte par destination (URL puis Telegram) avec interrupteur, en-tête masqué, dernier envoi réussi ou envois en attente (`JournalDb.destinationStats`), bouton « Tester » (`Forwarder.testTarget` : message de test pour Telegram, requête `{"test":true}` pour une URL, que Miango rejette avant toute écriture ; seule la réponse compte), ajout et modification d'une URL, configuration Telegram.
 - Interrupteur `widget/Toggle` (52 × 32 dp) ; textes calculés dans `journal/HomeFormat`, chiffres lus par `JournalDb.homeStats`.
 
 Chaque écran a son test de capture (`*ScreenshotTest`, données d'exemple de `Screens`), publié par le CI sur la branche `screenshots/<branche>` et comparé à la maquette.
