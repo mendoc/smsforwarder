@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Logo « Bulle qui part » : bulle de SMS, flèche « transférer », point menthe du relais actif.
+     Réduit à 70 % autour du centre pour tenir dans la zone sûre (cercle de 66 dp) de tous les masques. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.7"
+        android:scaleY="0.7">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M33,28h42a11,11 0,0 1,11 11v24a11,11 0,0 1,-11 11H50l-14,12V74h-3a11,11 0,0 1,-11 -11V39a11,11 0,0 1,11 -11z" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M38,51h31M59,41l10,10 -10,10"
+            android:strokeWidth="7"
+            android:strokeColor="#0D5C4A"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:fillColor="#8FE0C2"
+            android:pathData="M79,29m-9,0a9,9 0,1 1,18 0a9,9 0,1 1,-18 0"
+            android:strokeWidth="4"
+            android:strokeColor="#0D5C4A" />
+    </group>
+</vector>

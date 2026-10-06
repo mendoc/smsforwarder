@@ -134,6 +134,11 @@ final class Screens {
         root.layout(0, 0, metrics.widthPixels, metrics.heightPixels);
         Bitmap bitmap = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.ARGB_8888);
         root.draw(new Canvas(bitmap));
+        save(bitmap, name);
+    }
+
+    /** Écrit {@code build/screenshots/<name>.png}, publié par le CI. */
+    static void save(Bitmap bitmap, String name) throws IOException {
         File dir = new File("build/screenshots");
         assertTrue(dir.isDirectory() || dir.mkdirs());
         try (FileOutputStream out = new FileOutputStream(new File(dir, name + ".png"))) {
