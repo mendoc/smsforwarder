@@ -59,10 +59,10 @@ public class JournalScreenshotTest {
 
         long a = record(journal, "AirtelMoney", "Vous avez recu 25 000 FCFA du 07 •• •• 31. Nouveau solde : 437 350 FCFA. TID: PP2510…",
                 at(0, 14, 26), Delivery.VIA_RECEPTION);
-        attempt(journal, a, "miango", SendOutcome.http(200));
-        attempt(journal, a, "sims", SendOutcome.http(200));
-        attempt(journal, a, "telegram", SendOutcome.noResponse("Délai dépassé"));
-        attempt(journal, a, "telegram", SendOutcome.noResponse("Délai dépassé"));
+        attempt(journal, a, Screens.MIANGO, SendOutcome.http(200));
+        attempt(journal, a, Screens.SIMS, SendOutcome.http(200));
+        attempt(journal, a, Screens.TELEGRAM, SendOutcome.noResponse("Délai dépassé"));
+        attempt(journal, a, Screens.TELEGRAM, SendOutcome.noResponse("Délai dépassé"));
 
         long b = record(journal, "AirtelMoney", "Votre solde est 412 350 FCFA.", at(0, 13, 58), Delivery.VIA_RECEPTION);
         allSent(journal, b);
@@ -71,9 +71,9 @@ public class JournalScreenshotTest {
         allSent(journal, c);
         long d = record(journal, "Paypal", "PayPal : votre code de sécurité est ••••••. Il expire dans 10 minutes.",
                 at(1, 21, 47), Delivery.VIA_RECEPTION);
-        attempt(journal, d, "telegram", SendOutcome.http(200));
-        attempt(journal, d, "miango", SendOutcome.http(400));
-        attempt(journal, d, "sims", SendOutcome.http(200));
+        attempt(journal, d, Screens.TELEGRAM, SendOutcome.http(200));
+        attempt(journal, d, Screens.MIANGO, SendOutcome.http(400));
+        attempt(journal, d, Screens.SIMS, SendOutcome.http(200));
         long e = record(journal, "38643", "Vous avez envoye 15 000 FCFA au 07 •• •• 55. TID:PP2510…", at(1, 18, 12), Delivery.VIA_RECEPTION);
         allSent(journal, e);
     }
@@ -145,9 +145,9 @@ public class JournalScreenshotTest {
         sms.setSimSlot(0);
         sms.setSimCarrier("Airtel");
         Map<String, String> destinations = new LinkedHashMap<>();
-        destinations.put("miango", "Miango");
-        destinations.put("sims", "SMS des SIM");
-        destinations.put("telegram", "Telegram");
+        destinations.put(Screens.MIANGO, "https://miango.netlify.app/smshandler");
+        destinations.put(Screens.SIMS, "https://miango.netlify.app/sms/incoming");
+        destinations.put(Screens.TELEGRAM, "Telegram");
         return journal.record(sms, "Am6", source, destinations);
     }
 
@@ -156,7 +156,7 @@ public class JournalScreenshotTest {
     }
 
     private static void allSent(JournalDb journal, long id) {
-        for (String key : new String[]{"miango", "sims", "telegram"}) attempt(journal, id, key, SendOutcome.http(200));
+        for (String key : new String[]{Screens.MIANGO, Screens.SIMS, Screens.TELEGRAM}) attempt(journal, id, key, SendOutcome.http(200));
     }
 
     /** Laisse le fil de lecture et le fil principal travailler jusqu'à {@code rows} lignes. */

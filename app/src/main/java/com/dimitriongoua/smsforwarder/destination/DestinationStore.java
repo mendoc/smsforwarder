@@ -12,7 +12,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Destinations enregistrées sur le téléphone : liste d'URL et configuration Telegram.
@@ -32,6 +34,8 @@ public class DestinationStore {
     public static final String SMS_HANDLER_ID = "smshandler";
     public static final String SMS_INCOMING_ID = "sms-incoming";
     public static final String SMS_INCOMING_HEADER = "X-Sms-Token";
+    public static final String SMS_HANDLER_TITLE = "Miango · reçus";
+    public static final String SMS_INCOMING_TITLE = "Miango · SMS des SIM";
 
     private final SharedPreferences prefs;
 
@@ -45,8 +49,9 @@ public class DestinationStore {
 
     public static List<UrlDestination> defaultUrls() {
         List<UrlDestination> urls = new ArrayList<>();
-        urls.add(new UrlDestination(SMS_HANDLER_ID, EndPoints.WEBHOOK_URL, null, null, true));
-        urls.add(new UrlDestination(SMS_INCOMING_ID, EndPoints.INBOX_URL, SMS_INCOMING_HEADER, Constants.SMS_INGEST_TOKEN, true));
+        urls.add(new UrlDestination(SMS_HANDLER_ID, SMS_HANDLER_TITLE, EndPoints.WEBHOOK_URL, null, null, true));
+        urls.add(new UrlDestination(SMS_INCOMING_ID, SMS_INCOMING_TITLE, EndPoints.INBOX_URL, SMS_INCOMING_HEADER,
+                Constants.SMS_INGEST_TOKEN, true));
         return urls;
     }
 
@@ -60,6 +65,7 @@ public class DestinationStore {
                 JSONObject item = array.getJSONObject(i);
                 urls.add(new UrlDestination(
                         item.optString("id", null),
+                        item.isNull("title") ? null : item.optString("title", null),
                         item.optString("url", ""),
                         item.isNull("header_name") ? null : item.optString("header_name", null),
                         item.isNull("header_value") ? null : item.optString("header_value", null),
@@ -78,6 +84,7 @@ public class DestinationStore {
             for (UrlDestination url : urls) {
                 JSONObject item = new JSONObject();
                 item.put("id", url.getId());
+                item.put("title", url.getTitle() == null ? JSONObject.NULL : url.getTitle());
                 item.put("url", url.getUrl());
                 item.put("header_name", url.getHeaderName() == null ? JSONObject.NULL : url.getHeaderName());
                 item.put("header_value", url.getHeaderValue() == null ? JSONObject.NULL : url.getHeaderValue());
@@ -118,6 +125,14 @@ public class DestinationStore {
             if (url.getId().equals(id)) return url;
         }
         return null;
+    }
+
+    /** Titre actuel de chaque destination, par clé du journal (« url:… », « telegram »). */
+    public Map<String, String> names() {
+        Map<String, String> names = new HashMap<>();
+        for (UrlDestination url : getUrls()) names.put(url.getKey(), DestinationFormat.name(url));
+        names.put(TelegramDestination.KEY, TelegramDestination.LABEL);
+        return names;
     }
 
     public TelegramDestination getTelegram() {

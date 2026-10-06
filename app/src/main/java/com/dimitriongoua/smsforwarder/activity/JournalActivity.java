@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.dimitriongoua.smsforwarder.R;
+import com.dimitriongoua.smsforwarder.destination.DestinationStore;
 import com.dimitriongoua.smsforwarder.journal.JournalBadges;
 import com.dimitriongoua.smsforwarder.journal.JournalDb;
 import com.dimitriongoua.smsforwarder.journal.JournalEntry;
@@ -66,6 +67,8 @@ public class JournalActivity extends AppCompatActivity {
     private JournalQuery query = JournalQuery.ALL;
     private boolean loading;
     private boolean hasMore = true;
+    // Titres actuels des destinations (une destination renommée change aussi les anciens SMS).
+    private Map<String, String> names;
     // Incrémenté à chaque rechargement : une page d'une ancienne liste est ignorée.
     private int generation;
 
@@ -117,6 +120,7 @@ public class JournalActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        names = DestinationStore.with(this).names();
         reloadFilters();
         reload();
     }
@@ -321,7 +325,7 @@ public class JournalActivity extends AppCompatActivity {
 
             ChipGroup badges = view.findViewById(R.id.journal_badges);
             badges.removeAllViews();
-            for (JournalBadges.Badge badge : JournalBadges.of(entry)) badges.addView(badgeView(badge));
+            for (JournalBadges.Badge badge : JournalBadges.of(entry, names)) badges.addView(badgeView(badge));
 
             return view;
         }

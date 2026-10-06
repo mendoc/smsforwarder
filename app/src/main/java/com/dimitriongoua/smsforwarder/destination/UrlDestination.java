@@ -16,13 +16,20 @@ public final class UrlDestination {
     private static final Pattern HEADER_NAME = Pattern.compile("^[!#$%&'*+.^_`|~0-9A-Za-z-]+$");
 
     private final String id;
+    /** Titre affiché (journal, détail, destinations) ; null : titre par défaut. */
+    private final String title;
     private final String url;
     private final String headerName;
     private final String headerValue;
     private final boolean enabled;
 
     public UrlDestination(String id, String url, String headerName, String headerValue, boolean enabled) {
+        this(id, null, url, headerName, headerValue, enabled);
+    }
+
+    public UrlDestination(String id, String title, String url, String headerName, String headerValue, boolean enabled) {
         this.id = id == null || id.trim().isEmpty() ? UUID.randomUUID().toString() : id;
+        this.title = blankToNull(title);
         this.url = url == null ? "" : url.trim();
         this.headerName = blankToNull(headerName);
         // Sans nom d'en-tête, la valeur n'a pas de sens : elle n'est pas conservée.
@@ -90,6 +97,10 @@ public final class UrlDestination {
         return id;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -107,7 +118,7 @@ public final class UrlDestination {
     }
 
     public UrlDestination withEnabled(boolean value) {
-        return new UrlDestination(id, url, headerName, headerValue, value);
+        return new UrlDestination(id, title, url, headerName, headerValue, value);
     }
 
     private static String blankToNull(String value) {

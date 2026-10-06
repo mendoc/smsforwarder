@@ -27,14 +27,7 @@
     <string name="urls_help">Chaque SMS relayé est envoyé en POST (JSON : from, body, timestamp, sim, device) à chaque URL active. Touchez une URL pour la modifier.</string>
     <string name="urls_none">Aucune URL.</string>
     <string name="url_add">Ajouter une URL</string>
-    <string name="url_edit_title">Destination URL</string>
     <string name="url_hint">https://exemple.com/sms</string>
-    <string name="url_header_name_hint">Nom de l\'en-tête (optionnel, ex. X-Sms-Token)</string>
-    <string name="url_header_value_hint">Valeur de l\'en-tête</string>
-    <string name="url_header_value_keep">Valeur enregistrée masquée : laisser vide pour la garder</string>
-    <string name="url_no_header">Sans en-tête</string>
-    <string name="url_header">En-tête %1$s : %2$s</string>
-    <string name="url_disabled">Désactivée</string>
     <string name="url_delete">Supprimer</string>
     <string name="url_deleted">URL supprimée</string>
     <string name="cancel">Annuler</string>
@@ -140,8 +133,9 @@
     <string name="detail_sends">Envois</string>
     <string name="detail_next">Prochain essai</string>
     <string name="detail_next_value">synchronisation</string>
-    <string name="detail_copy">Copier le texte du SMS</string>
-    <string name="detail_copied">Texte du SMS copié</string>
+    <string name="detail_retry">Réessayer</string>
+    <string name="detail_retry_one">Réessayer l\'envoi vers %1$s</string>
+    <string name="detail_retry_gone">Destination supprimée ou désactivée : rien à renvoyer.</string>
     <string name="detail_retrying">Nouvel essai en cours…</string>
     <string name="detail_rules">Un envoi réussi n\'est jamais refait. Sans réponse pendant 7 jours, l\'envoi est abandonné.</string>
     <string name="detail_gone">Ce SMS n\'est plus dans le journal.</string>
@@ -181,4 +175,24 @@
     <string name="permissions_battery_text">Empêcher Android de suspendre l\'application en veille.</string>
     <string name="permissions_settings_hint">Autorisation bloquée : activez-la dans les réglages de l\'application.</string>
     <string name="settings_alert_sub_battery">Sans elle, Android peut suspendre le relais en veille.</string>
+    <!-- Modifier une destination -->
+    <string name="url_back">Retour aux destinations</string>
+    <string name="url_edit_heading">Modifier la destination</string>
+    <string name="url_new_heading">Nouvelle destination</string>
+    <string name="url_title_label">Titre</string>
+    <string name="url_title_hint">ex. Miango · reçus</string>
+    <string name="url_title_help">Affiché dans le journal et le détail des SMS.</string>
+    <string name="url_label">URL</string>
+    <string name="url_help">Envoi en POST (JSON : from, body, timestamp, sim, device).</string>
+    <string name="url_header_section">En-tête de sécurité</string>
+    <string name="url_header_section_help">Facultatif. Envoyé avec chaque SMS, jamais affiché en clair.</string>
+    <string name="url_header_name_label">Nom</string>
+    <string name="url_header_name_example">X-Sms-Token</string>
+    <string name="url_header_value_label">Valeur</string>
+    <string name="url_header_value_saved">•••••••• (enregistrée)</string>
+    <string name="url_header_value_keep_help">Laisser vide pour garder la valeur enregistrée.</string>
+    <string name="url_enabled_title">Destination active</string>
+    <string name="url_enabled_help">Les SMS retenus y sont envoyés.</string>
+    <string name="url_delete_destination">Supprimer la destination</string>
+    <string name="url_delete_confirm">Supprimer « %1$s » ? Ses envois en attente ne partiront plus.</string>
 </resources>

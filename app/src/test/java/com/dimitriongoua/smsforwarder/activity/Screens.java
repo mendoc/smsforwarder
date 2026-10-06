@@ -97,8 +97,8 @@ final class Screens {
         sms.setSimSlot(sim == SIM_MOOV ? 1 : 0);
         sms.setSimCarrier(sim == SIM_MOOV ? "Moov" : "Airtel");
         Map<String, String> destinations = new LinkedHashMap<>();
-        destinations.put(MIANGO, "Miango");
-        destinations.put(SIMS, "SMS des SIM");
+        destinations.put(MIANGO, "https://miango.netlify.app/smshandler");
+        destinations.put(SIMS, "https://miango.netlify.app/sms/incoming");
         destinations.put(TELEGRAM, "Telegram");
         return journal.record(sms, sim == SIM_MOOV ? "Moov · perso" : "Am6", source, destinations);
     }

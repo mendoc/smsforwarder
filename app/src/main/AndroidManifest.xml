@@ -66,10 +66,19 @@
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />
 
+        <!-- adjustResize : avec le clavier ouvert, l'écran rétrécit et reste défilable jusqu'au champ. -->
         <activity
             android:name=".activity.ReglagesActivity"
             android:exported="false"
-            android:theme="@style/Theme.SmsForwarder.Refonte" />
+            android:theme="@style/Theme.SmsForwarder.Refonte"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activity.DestinationEditActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.DestinationsActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".activity.DetailActivity"
@@ -87,7 +96,8 @@
             android:name=".activity.SimActivity"
             android:exported="false"
             android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/Theme.SmsForwarder.Refonte" />
+            android:theme="@style/Theme.SmsForwarder.Refonte"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".activity.MainActivity"

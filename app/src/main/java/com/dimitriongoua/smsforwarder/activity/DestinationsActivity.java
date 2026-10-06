@@ -37,8 +37,9 @@ import java.util.concurrent.Executors;
 /**
  * Destinations (maquette « Destinations ») : une carte par destination (les URL, puis
  * Telegram) avec interrupteur, en-tête masqué, dernier envoi réussi ou envois en attente, et
- * bouton « Tester ». Toucher une carte la modifie ; les secrets ne sont jamais réaffichés
- * (un champ secret laissé vide conserve la valeur enregistrée).
+ * bouton « Tester ». Toucher une URL ouvre {@link DestinationEditActivity}, Telegram sa
+ * fenêtre de réglage ; les secrets ne sont jamais réaffichés (un champ secret laissé vide
+ * conserve la valeur enregistrée).
  */
 public class DestinationsActivity extends AppCompatActivity {
     private static final ExecutorService READER = Executors.newSingleThreadExecutor();
@@ -54,7 +55,7 @@ public class DestinationsActivity extends AppCompatActivity {
         TabBar.bind(this, TabBar.Tab.DESTINATIONS);
         store = DestinationStore.with(this);
         list = findViewById(R.id.dest_list);
-        findViewById(R.id.dest_add).setOnClickListener(v -> editUrl(null));
+        findViewById(R.id.dest_add).setOnClickListener(v -> startActivity(DestinationEditActivity.intent(this, null)));
     }
 
     @Override
@@ -80,7 +81,7 @@ public class DestinationsActivity extends AppCompatActivity {
         for (UrlDestination url : store.getUrls()) {
             addCard(url.getKey(), DestinationFormat.name(url), DestinationFormat.shortUrl(url.getLabel()), true,
                     url.hasHeader() ? DestinationFormat.header(url.getHeaderName()) : null,
-                    url.isEnabled(), stats.get(url.getKey()), now, zone, v -> editUrl(url),
+                    url.isEnabled(), stats.get(url.getKey()), now, zone, v -> startActivity(DestinationEditActivity.intent(this, url.getId())),
                     checked -> {
                         store.saveUrl(url.withEnabled(checked));
                         render();
@@ -199,69 +200,6 @@ public class DestinationsActivity extends AppCompatActivity {
                 return;
             }
             store.setTelegram(telegram);
-            Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-            render();
-        });
-    }
-
-    /** Ajout (destination null) ou modification d'une URL. */
-    private void editUrl(UrlDestination existing) {
-        LinearLayout form = form();
-        EditText url = field(R.string.url_hint, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        EditText headerName = field(R.string.url_header_name_hint, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        boolean hasValue = existing != null && existing.getHeaderValue() != null && !existing.getHeaderValue().isEmpty();
-        EditText headerValue = field(hasValue ? R.string.url_header_value_keep : R.string.url_header_value_hint,
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        CheckBox enabled = new CheckBox(this);
-        enabled.setText(R.string.destination_enabled);
-        enabled.setChecked(existing == null || existing.isEnabled());
-        if (existing != null) {
-            url.setText(existing.getUrl());
-            headerName.setText(existing.getHeaderName() == null ? "" : existing.getHeaderName());
-        }
-        form.addView(url);
-        form.addView(headerName);
-        form.addView(headerValue);
-        form.addView(enabled);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle(R.string.url_edit_title)
-                .setView(form)
-                .setPositiveButton(R.string.save, null)
-                .setNegativeButton(R.string.cancel, null);
-        if (existing != null) {
-            builder.setNeutralButton(R.string.url_delete, (dialog, which) -> {
-                store.deleteUrl(existing.getId());
-                Toast.makeText(this, R.string.url_deleted, Toast.LENGTH_SHORT).show();
-                render();
-            });
-        }
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        // Bouton remplacé après show() : une saisie invalide garde la fenêtre ouverte.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String value = headerValue.getText().toString();
-            if (value.isEmpty() && existing != null && existing.getHeaderValue() != null) {
-                value = existing.getHeaderValue();
-            }
-            UrlDestination destination = new UrlDestination(
-                    existing == null ? null : existing.getId(),
-                    url.getText().toString(),
-                    headerName.getText().toString(),
-                    value,
-                    enabled.isChecked());
-            String urlError = UrlDestination.validateUrl(destination.getUrl());
-            String headerError = UrlDestination.validateHeaderName(headerName.getText().toString());
-            if (urlError != null) {
-                url.setError(urlError);
-                return;
-            }
-            if (headerError != null) {
-                headerName.setError(headerError);
-                return;
-            }
-            store.saveUrl(destination);
             Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
             dialog.dismiss();
             render();

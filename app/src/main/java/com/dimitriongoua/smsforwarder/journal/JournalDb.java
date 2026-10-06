@@ -255,9 +255,12 @@ public class JournalDb extends SQLiteOpenHelper {
             if (cursor.moveToFirst()) stats.failedToday = cursor.getInt(0);
         }
         stats.open = countOpen();
-        try (Cursor cursor = db.rawQuery("SELECT DISTINCT dest_label FROM delivery WHERE status IN (?, ?) "
-                + "ORDER BY dest_label", new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
-            while (cursor.moveToNext()) stats.openDestinations.add(cursor.getString(0));
+        try (Cursor cursor = db.rawQuery("SELECT dest_key, MAX(dest_label) FROM delivery WHERE status IN (?, ?) "
+                + "GROUP BY dest_key ORDER BY dest_key", new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            while (cursor.moveToNext()) {
+                stats.openDestinationKeys.add(cursor.getString(0));
+                stats.openDestinations.add(cursor.getString(1));
+            }
         }
         try (Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT sms_id), MAX(sms_id) FROM delivery WHERE status IN (?, ?)",
                 new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {

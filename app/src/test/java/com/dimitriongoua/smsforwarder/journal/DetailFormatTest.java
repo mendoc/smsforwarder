@@ -1,12 +1,10 @@
 package com.dimitriongoua.smsforwarder.journal;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.TimeZone;
 
 public class DetailFormatTest {
@@ -39,8 +37,5 @@ public class DetailFormatTest {
         assertEquals("Échec · HTTP 400 · 1 essai", DetailFormat.delivery(failed));
         assertEquals("Essai 2 · sans réponse (délai dépassé)", DetailFormat.lastAttempt(open));
         assertEquals("1 sur 3 réussi", DetailFormat.summary(Arrays.asList(sent, open, failed)));
-        assertEquals("Réessayer Telegram maintenant", DetailFormat.retry(Arrays.asList(sent, open)));
-        assertEquals("Réessayer les 2 envois maintenant", DetailFormat.retry(Arrays.asList(sent, open, failed)));
-        assertNull(DetailFormat.retry(Collections.singletonList(sent)));
     }
 }

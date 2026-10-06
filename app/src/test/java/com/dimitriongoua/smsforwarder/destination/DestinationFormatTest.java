@@ -23,6 +23,20 @@ public class DestinationFormatTest {
         assertEquals("exemple.com", DestinationFormat.name(new UrlDestination("x", "https://exemple.com/sms?k=1", null, null, true)));
         assertEquals("miango.netlify.app/smshandler", DestinationFormat.shortUrl("https://miango.netlify.app/smshandler"));
         assertEquals("X-Sms-Token : ••••••••", DestinationFormat.header("X-Sms-Token"));
+        assertEquals("Banque", DestinationFormat.name(new UrlDestination(DestinationStore.SMS_HANDLER_ID, "Banque",
+                "https://miango.netlify.app/smshandler", null, null, true)));
+        assertEquals("exemple.com", DestinationFormat.name(new UrlDestination("x", "  ", "https://exemple.com/sms", null, null, true)));
+    }
+
+    @Test
+    public void titreDUnEnvoi() {
+        java.util.Map<String, String> names = new java.util.HashMap<>();
+        names.put("url:a", "Banque");
+        names.put("telegram", "Telegram");
+        assertEquals("Banque", DestinationFormat.label(names, "url:a", "https://banque.example/sms"));
+        assertEquals("banque.example", DestinationFormat.label(names, "url:supprimee", "https://banque.example/sms"));
+        assertEquals("Telegram", DestinationFormat.label(names, "telegram", "Telegram"));
+        assertEquals("Autre", DestinationFormat.label(null, "autre", "Autre"));
     }
 
     @Test

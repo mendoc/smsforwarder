@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.dimitriongoua.smsforwarder.R;
+import com.dimitriongoua.smsforwarder.destination.DestinationFormat;
 import com.dimitriongoua.smsforwarder.destination.DestinationStore;
 import com.dimitriongoua.smsforwarder.destination.UrlDestination;
 import com.dimitriongoua.smsforwarder.filter.SimPolicy;
@@ -34,6 +35,7 @@ import com.dimitriongoua.smsforwarder.widget.Toggle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -122,7 +124,12 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.home_alert).setOnClickListener(v -> startActivity(stats.openSms == 1
                 ? new Intent(this, DetailActivity.class).putExtra(DetailActivity.EXTRA_ID, stats.openSmsId)
                 : new Intent(this, JournalActivity.class).putExtra(JournalActivity.EXTRA_PENDING, true)));
-        ((TextView) findViewById(R.id.home_alert_title)).setText(HomeFormat.pending(stats.open, stats.openDestinations));
+        Map<String, String> names = DestinationStore.with(this).names();
+        List<String> open = new ArrayList<>();
+        for (int i = 0; i < stats.openDestinationKeys.size(); i++) {
+            open.add(DestinationFormat.label(names, stats.openDestinationKeys.get(i), stats.openDestinations.get(i)));
+        }
+        ((TextView) findViewById(R.id.home_alert_title)).setText(HomeFormat.pending(stats.open, open));
 
         renderSims(stats, zone);
 

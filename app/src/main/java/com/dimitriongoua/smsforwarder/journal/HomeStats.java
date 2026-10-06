@@ -17,6 +17,8 @@ public final class HomeStats {
     public int openSms;
     public long openSmsId = -1;
     /** Destinations de ces envois à faire, par ordre alphabétique. */
+    /** Destinations des envois en attente : clé et titre enregistré avec l'envoi, dans le même ordre. */
+    public final List<String> openDestinationKeys = new ArrayList<>();
     public final List<String> openDestinations = new ArrayList<>();
     /** Dernier SMS envoyé vers au moins une destination, null s'il n'y en a pas. */
     public JournalEntry lastRelayed;

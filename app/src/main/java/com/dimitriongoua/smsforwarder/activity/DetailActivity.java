@@ -1,7 +1,5 @@
 package com.dimitriongoua.smsforwarder.activity;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -20,8 +18,6 @@ import androidx.core.content.ContextCompat;
 import com.dimitriongoua.smsforwarder.R;
 import com.dimitriongoua.smsforwarder.destination.DestinationFormat;
 import com.dimitriongoua.smsforwarder.destination.DestinationStore;
-import com.dimitriongoua.smsforwarder.destination.TelegramDestination;
-import com.dimitriongoua.smsforwarder.destination.UrlDestination;
 import com.dimitriongoua.smsforwarder.journal.Delivery;
 import com.dimitriongoua.smsforwarder.journal.DeliveryStatus;
 import com.dimitriongoua.smsforwarder.journal.DetailFormat;
@@ -32,23 +28,24 @@ import com.dimitriongoua.smsforwarder.send.Dispatcher;
 import com.dimitriongoua.smsforwarder.send.Forwarder;
 import com.dimitriongoua.smsforwarder.util.Settings;
 
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * Détail d'un SMS du journal (maquette « Détail d'un SMS ») : texte complet, SIM, opérateur,
- * mode de relais, règle qui l'a retenu, puis l'état de chaque envoi. « Réessayer » relance
- * les envois non réussis (un envoi réussi n'est jamais refait), « Copier » copie le texte.
+ * mode de relais, règle qui l'a retenu, puis l'état de chaque envoi. Chaque envoi non réussi
+ * porte son bouton « Réessayer » (un envoi réussi n'est jamais refait).
  */
 public class DetailActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "sms_id";
-    private static final String URL_PREFIX = "url:";
     private static final ExecutorService READER = Executors.newSingleThreadExecutor();
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private long id;
     private JournalEntry entry;
+    private Map<String, String> names;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +53,6 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         id = getIntent().getLongExtra(EXTRA_ID, -1);
         findViewById(R.id.detail_back).setOnClickListener(v -> finish());
-        findViewById(R.id.detail_retry).setOnClickListener(v -> retry());
-        findViewById(R.id.detail_copy).setOnClickListener(v -> copy());
         fact(R.id.detail_fact_sim, R.string.detail_sim);
         fact(R.id.detail_fact_carrier, R.string.detail_carrier);
         fact(R.id.detail_fact_via, R.string.detail_via);
@@ -115,26 +110,16 @@ public class DetailActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.detail_summary)).setText(DetailFormat.summary(entry.deliveries));
         LinearLayout list = findViewById(R.id.detail_deliveries);
         list.removeAllViews();
+        names = DestinationStore.with(this).names();
         for (int i = 0; i < entry.deliveries.size(); i++) {
             list.addView(row(entry.deliveries.get(i), list, i == 0, i == entry.deliveries.size() - 1, zone));
         }
         list.setVisibility(entry.deliveries.isEmpty() ? View.GONE : View.VISIBLE);
-
-        String retry = DetailFormat.retry(entry.deliveries);
-        TextView retryButton = findViewById(R.id.detail_retry);
-        retryButton.setVisibility(retry == null ? View.GONE : View.VISIBLE);
-        if (retry != null) retryButton.setText(retry);
     }
 
-    /** Nom actuel de la destination (« Miango · reçus »), sinon celui enregistré avec l'envoi. */
+    /** Titre actuel de la destination (« Miango · reçus »). */
     private String name(Delivery delivery) {
-        if (delivery.destinationKey.startsWith(URL_PREFIX)) {
-            UrlDestination url = DestinationStore.with(this).findUrl(delivery.destinationKey.substring(URL_PREFIX.length()));
-            if (url != null) return DestinationFormat.name(url);
-        } else if (TelegramDestination.KEY.equals(delivery.destinationKey)) {
-            return TelegramDestination.LABEL;
-        }
-        return delivery.destinationLabel;
+        return DestinationFormat.label(names, delivery.destinationKey, delivery.destinationLabel);
     }
 
     /** Fond ambré d'un envoi en attente, arrondi comme la carte quand il en occupe un bord. */
@@ -170,6 +155,12 @@ public class DetailActivity extends AppCompatActivity {
             ((TextView) row.findViewById(R.id.delivery_last_time)).setText(DetailFormat.time(delivery.lastAttemptAt, zone));
             row.setBackground(openBackground(first, last));
         }
+        if (delivery.status != DeliveryStatus.SENT) {
+            View retry = row.findViewById(R.id.delivery_retry);
+            retry.setVisibility(View.VISIBLE);
+            retry.setContentDescription(getString(R.string.detail_retry_one, name(delivery)));
+            retry.setOnClickListener(v -> retry(delivery, retry));
+        }
         if (!last) {
             LinearLayout wrapper = new LinearLayout(this);
             wrapper.setOrientation(LinearLayout.VERTICAL);
@@ -183,33 +174,22 @@ public class DetailActivity extends AppCompatActivity {
         return row;
     }
 
-    /** Relance les envois non réussis sur le fil d'envoi, puis recharge l'écran. */
-    private void retry() {
+    /** Relance cet envoi sur le fil d'envoi, puis recharge l'écran. */
+    private void retry(Delivery delivery, View button) {
         if (entry == null) return;
-        findViewById(R.id.detail_retry).setEnabled(false);
+        button.setEnabled(false);
         Toast.makeText(this, R.string.detail_retrying, Toast.LENGTH_SHORT).show();
         final JournalEntry current = entry;
         Forwarder.EXECUTOR.execute(() -> {
             Dispatcher dispatcher = Dispatcher.with(this);
-            SMS sms = toSms(current);
-            for (Delivery delivery : current.deliveries) {
-                if (delivery.status == DeliveryStatus.SENT) continue;
-                Forwarder.Target target = dispatcher.getForwarder().targetFor(delivery.destinationKey, sms);
-                if (target != null) dispatcher.deliver(current.id, target, Delivery.VIA_SYNC);
-            }
+            Forwarder.Target target = dispatcher.getForwarder().targetFor(delivery.destinationKey, toSms(current));
+            if (target != null) dispatcher.deliver(current.id, target, Delivery.VIA_SYNC);
             main.post(() -> {
                 if (isFinishing()) return;
-                findViewById(R.id.detail_retry).setEnabled(true);
+                if (target == null) Toast.makeText(this, R.string.detail_retry_gone, Toast.LENGTH_LONG).show();
                 load();
             });
         });
-    }
-
-    private void copy() {
-        if (entry == null) return;
-        ClipboardManager clipboard = getSystemService(ClipboardManager.class);
-        if (clipboard != null) clipboard.setPrimaryClip(ClipData.newPlainText(entry.sender, entry.body));
-        Toast.makeText(this, R.string.detail_copied, Toast.LENGTH_SHORT).show();
     }
 
     private static SMS toSms(JournalEntry entry) {

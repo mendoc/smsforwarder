@@ -62,20 +62,6 @@ public final class DetailFormat {
         return "Essai " + delivery.attempts + " · " + reason;
     }
 
-    /** Bouton « Réessayer … maintenant », null quand tout est envoyé. */
-    public static String retry(List<Delivery> deliveries) {
-        Delivery single = null;
-        int count = 0;
-        for (Delivery delivery : deliveries) {
-            if (delivery.status == DeliveryStatus.SENT) continue;
-            single = delivery;
-            count++;
-        }
-        if (count == 0) return null;
-        if (count == 1) return "Réessayer " + single.destinationLabel + " maintenant";
-        return "Réessayer les " + count + " envois maintenant";
-    }
-
     private static String attempts(int count) {
         if (count <= 0) return "";
         return count + (count > 1 ? " essais" : " essai");
