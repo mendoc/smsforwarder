@@ -9,30 +9,35 @@ env:
 
 on:
 
-  # Livraisons (tags v<versionName>, ex. v1.4.1) et builds d'intégration (main)
+  # Builds d'intégration (main)
   push:
     branches:
       - 'main'
-    tags:
-      - 'v*'
 
   # Le développement se fait sur main via des PR : chaque PR compile l'APK (artefact joint)
   pull_request:
     branches:
       - 'main'
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Lancement manuel (onglet Actions). Coché sur main, « livrer » fait la livraison :
+  # tag v<versionName>, APK release, Release GitHub, Telegram, puis PR de la version suivante.
   workflow_dispatch:
+    inputs:
+      livrer:
+        description: "Livrer la version de main (tag, APK release, Release GitHub, PR de la version suivante)"
+        type: boolean
+        default: false
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
-    # contents: write pour publier les captures d'écran (branche screenshots/<branche>) et
-    # créer la Release GitHub d'un tag.
+    # contents: write pour publier les captures d'écran (branche screenshots/<branche>), le
+    # tag et la Release GitHub ; pull-requests: write pour la PR de la version suivante.
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -72,42 +77,48 @@ jobs:
           fi
 
       # Version et type de build selon l'origine (VERSION_SUFFIX lu par app/build.gradle) :
-      #   tag v*      -> aucun suffixe, APK release (livraison : 1.4.1)
+      #   livraison   -> aucun suffixe, APK release (1.4.1)
       #   PR          -> -pr.<PR>.<run>+<sha>, APK debug (jetable)
       #   main/manuel -> -dev.<run>+<sha>, APK debug (build d'intégration)
       # versionCode inchangé : la livraison s'installe toujours par-dessus un APK de test.
-      # Un tag doit valoir « v » + versionName : sinon le build échoue au lieu de livrer
-      # une version mal étiquetée.
+      # Livraison seulement depuis main, avec la clé fixe, et si v<versionName> n'existe pas.
       - name: Compute version suffix
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          LIVRER: ${{ github.event_name == 'workflow_dispatch' && inputs.livrer }}
         run: |
           version=$(sed -n 's/^[[:space:]]*versionName[[:space:]]*"\([^"]*\)".*/\1/p' ${{ env.main_project_module }}/build.gradle | head -n 1)
           if [ -z "$version" ]; then echo "versionName introuvable dans ${{ env.main_project_module }}/build.gradle" >&2; exit 1; fi
           echo "app_version=$version" >> $GITHUB_ENV
           build_type=debug
-          case "$GITHUB_REF" in
-            refs/tags/*)
-              if [ "$GITHUB_REF_NAME" != "v$version" ]; then
-                echo "::error::Le tag $GITHUB_REF_NAME ne correspond pas à versionName $version (attendu : v$version)."
-                exit 1
-              fi
-              if [ -z "$SIGNING_KEYSTORE_PATH" ]; then
-                echo "::error::Livraison impossible sans la clé de signature fixe (secret SIGNING_KEYSTORE_BASE64)."
-                exit 1
-              fi
-              suffix=""
-              build_type=release ;;
-            *)
-              if [ -n "$PR_NUMBER" ]; then pre="pr.${PR_NUMBER}.${GITHUB_RUN_NUMBER}"; else pre="dev.${GITHUB_RUN_NUMBER}"; fi
-              suffix="-${pre}+${HEAD_SHA::7}" ;;
-          esac
+          delivery=false
+          if [ "$LIVRER" = true ]; then
+            if [ "$GITHUB_REF" != refs/heads/main ]; then
+              echo "::error::Livraison seulement depuis main (lancé sur $GITHUB_REF_NAME)."
+              exit 1
+            fi
+            if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
+              echo "::error::v$version est déjà livrée : monter versionName / versionCode sur main avant de livrer."
+              exit 1
+            fi
+            if [ -z "$SIGNING_KEYSTORE_PATH" ]; then
+              echo "::error::Livraison impossible sans la clé de signature fixe (secret SIGNING_KEYSTORE_BASE64)."
+              exit 1
+            fi
+            suffix=""
+            build_type=release
+            delivery=true
+          else
+            if [ -n "$PR_NUMBER" ]; then pre="pr.${PR_NUMBER}.${GITHUB_RUN_NUMBER}"; else pre="dev.${GITHUB_RUN_NUMBER}"; fi
+            suffix="-${pre}+${HEAD_SHA::7}"
+          fi
           echo "VERSION_SUFFIX=$suffix" >> $GITHUB_ENV
           echo "build_type=$build_type" >> $GITHUB_ENV
+          echo "delivery=$delivery" >> $GITHUB_ENV
           # Sans les métadonnées « +sha » dans le nom de fichier
           echo "apk_suffix=${suffix%%+*}" >> $GITHUB_ENV
-          echo "Version : $version${suffix} (APK $build_type)"
+          echo "Version : $version${suffix} (APK $build_type$([ $delivery = true ] && echo ', livraison'))"
 
       # Run Build Project
       - name: Build gradle project
@@ -120,7 +131,7 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: ./gradlew build
 
-      # APK debug (PR, main) ou release (tag), signé avec la même clé fixe
+      # APK debug (PR, main) ou release (livraison), signé avec la même clé fixe
       - name: Build apk ${{ env.build_type }} (APK) - ${{ env.main_project_module }} module
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -151,31 +162,31 @@ jobs:
           path: dist/${{ env.apk_name }}.apk
           if-no-files-found: error
 
-      # Release GitHub du tag : notes générées à partir des PR fusionnées depuis le tag
-      # précédent (rubriques dans .github/release.yml) et APK release joint.
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
+      # Livraison, une fois l'APK construit : tag v<version> sur le commit de main, puis
+      # Release GitHub avec l'APK et des notes générées à partir des PR fusionnées depuis le
+      # tag précédent (rubriques dans .github/release.yml). Un tag poussé par le jeton du
+      # workflow ne relance pas le workflow : tout se fait dans ce run.
+      - name: Create tag and GitHub Release
+        if: env.delivery == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Release déjà créée depuis l'interface GitHub (qui crée aussi le tag) : on y joint
-          # l'APK ; sinon, on la crée avec des notes générées.
-          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "dist/${apk_name}.apk" --repo "$GITHUB_REPOSITORY" --clobber
-            echo "APK joint à la Release existante $GITHUB_REF_NAME"
-          else
-            gh release create "$GITHUB_REF_NAME" "dist/${apk_name}.apk" \
-              --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes \
-              --title "SMS Forwarder $app_version"
-            echo "Release $GITHUB_REF_NAME publiée avec dist/${apk_name}.apk"
-          fi
+          tag="v$app_version"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" -m "SMS Forwarder $app_version"
+          git push origin "refs/tags/$tag"
+          gh release create "$tag" "dist/${apk_name}.apk" \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes \
+            --title "SMS Forwarder $app_version"
+          echo "Livraison $tag : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$tag"
 
-      # Envoi de l'APK sur Telegram pour les livraisons (tags v*) et les lancements
+      # Envoi de l'APK sur Telegram pour les livraisons et les lancements
       # manuels, pas pour les PR ni les push sur main. Secrets TELEGRAM_BOT_TOKEN et TELEGRAM_CHAT_ID, à défaut
       # BOT_TOKEN et CHAT_ID (ceux déjà utilisés par l'app). Sans secret, l'étape est
       # ignorée avec un avertissement.
       - name: Send APK to Telegram
-        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'workflow_dispatch'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || secrets.BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || secrets.CHAT_ID }}
@@ -184,7 +195,8 @@ jobs:
             echo "::warning::Secrets Telegram absents : APK non envoyé sur Telegram."
             exit 0
           fi
-          caption="SMS Forwarder ${apk_name#sms-forwarder-} · ${GITHUB_REF_NAME} · ${GITHUB_SHA::7}"
+          ref="$GITHUB_REF_NAME"; [ "$delivery" = true ] && ref="v$app_version"
+          caption="SMS Forwarder ${apk_name#sms-forwarder-} · ${ref} · ${GITHUB_SHA::7}"
           curl -sS --fail-with-body -o /dev/null \
             --form-string chat_id="$TELEGRAM_CHAT_ID" \
             --form-string caption="$caption" \
@@ -195,9 +207,8 @@ jobs:
       # Captures d'écran des tests Robolectric (app/build/screenshots, voir JournalScreenshotTest),
       # même si un test échoue : publiées seules sur la branche screenshots/<branche de la PR>,
       # réécrite à chaque run, pour les comparer à la maquette sans téléphone.
-      # Pas pour les tags : leurs captures sont celles du commit déjà publié sur main.
       - name: Publish screenshots
-        if: always() && !startsWith(github.ref, 'refs/tags/')
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
@@ -216,3 +227,30 @@ jobs:
             commit -qm "Captures ${HEAD_SHA::7} (run ${GITHUB_RUN_NUMBER})"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${target}"
           echo "Captures publiées sur la branche ${target} :" && ls *.png
+
+      # Après une livraison : PR qui passe main à la version suivante (correctif + 1,
+      # versionCode + 1) ; main porte toujours la prochaine version. Une PR ouverte par le
+      # jeton du workflow ne lance pas le CI. Si le dépôt interdit aux workflows d'ouvrir des
+      # PR (Settings > Actions > General), la branche est poussée et un avertissement donne
+      # le lien pour ouvrir la PR à la main.
+      - name: Open next version PR
+        if: env.delivery == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gradle=${{ env.main_project_module }}/build.gradle
+          IFS=. read -r major minor patch <<< "$app_version"
+          next="$major.$minor.$((patch + 1))"
+          code=$(sed -n 's/^[[:space:]]*versionCode[[:space:]]*\([0-9]*\).*/\1/p' "$gradle" | head -n 1)
+          next_code=$((code + 1))
+          branch="version/$next"
+          git switch -c "$branch"
+          sed -i "s/^\([[:space:]]*versionCode[[:space:]]*\)$code/\1$next_code/; s/^\([[:space:]]*versionName[[:space:]]*\)\"$app_version\"/\1\"$next\"/" "$gradle"
+          git diff --exit-code --quiet "$gradle" && { echo "::error::versionName / versionCode non modifiés dans $gradle."; exit 1; }
+          git commit -qam "chore: main passe en $next (versionCode $next_code)"
+          git push origin "$branch"
+          body="v$app_version est livrée. main passe à la version suivante : versionName $next, versionCode $next_code."
+          if ! gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
+              --title "main passe en $next (versionCode $next_code)" --body "$body"; then
+            echo "::warning::PR non créée (droit des workflows à ouvrir des PR ?) : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/main...$branch"
+          fi

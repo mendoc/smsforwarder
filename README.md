@@ -2,18 +2,18 @@ SMS Forwarder est une application mobile permettant de transférer les SMS reçu
 
 ## Flux de travail
 - Le développement se fait sur `main`, par des PR. Chaque PR vers `main` compile l’APK de debug et le joint en artefact (GitHub Actions). Chaque push sur `main` produit aussi un APK d’intégration (debug).
-- Livraison : poser sur `main` le tag `v<versionName>` (ex. `git tag v1.4.1 && git push origin v1.4.1`). Le CI vérifie que le tag vaut `v` + `versionName` de `app/build.gradle` (sinon il échoue), construit l’APK **release** signé avec la même clé fixe que les APK de debug (il les met donc à jour sans désinstallation), puis crée la Release GitHub du tag avec l’APK joint et des notes de version générées à partir des PR fusionnées depuis le tag précédent (rubriques selon les étiquettes des PR : `.github/release.yml`). Sans la clé de signature, la livraison échoue. On peut aussi créer la Release depuis l’interface GitHub (Releases → « Draft a new release », tag `v1.4.1` sur `main`, « Generate release notes », « Publish ») : le tag ainsi créé déclenche le même build, qui joint l’APK à cette Release. Correctif sur une ancienne version : seulement dans ce cas, créer une branche depuis son tag.
+- Livraison : onglet Actions, workflow « Generated APK AAB », « Run workflow » sur `main` en cochant **livrer**. Le run vérifie que `v<versionName>` n’existe pas encore et que la clé de signature fixe est présente, construit l’APK **release** signé avec la même clé que les APK de debug (il les met donc à jour sans désinstallation), crée le tag `v<versionName>` sur le commit de `main`, puis la Release GitHub avec l’APK et des notes générées à partir des PR fusionnées depuis le tag précédent (rubriques selon les étiquettes des PR : `.github/release.yml`), envoie l’APK sur Telegram et ouvre la PR `version/<suivante>` qui passe `main` à la version suivante (correctif + 1, `versionCode` + 1). Cette PR, ouverte par le jeton du workflow, ne lance pas le CI ; si le dépôt n’autorise pas les workflows à ouvrir des PR (Settings → Actions → General → « Allow GitHub Actions to create and approve pull requests »), la branche est poussée et un avertissement donne le lien pour l’ouvrir. Pour une version mineure ou majeure, monter `versionName` / `versionCode` par une PR avant de livrer. Correctif sur une ancienne version : seulement dans ce cas, créer une branche depuis son tag.
 - Le workflow peut aussi être lancé à la main (onglet Actions).
-- Pour les livraisons (tags `v*`) et les lancements manuels, l’APK est aussi envoyé sur Telegram (secrets `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`, à défaut `BOT_TOKEN` / `CHAT_ID`), avec la légende « SMS Forwarder <version> · <tag ou branche> · <commit> ».
+- Pour les livraisons et les lancements manuels, l’APK est aussi envoyé sur Telegram (secrets `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`, à défaut `BOT_TOKEN` / `CHAT_ID`), avec la légende « SMS Forwarder <version> · <tag ou branche> · <commit> ».
 - Version affichée selon l’origine du build (SemVer : suffixe de pré-version, puis `+commit` en métadonnées) :
 
   | Origine | `versionName` | APK |
   |---|---|---|
-  | tag `v1.3.2` | `1.3.2` | `sms-forwarder-1.3.2.apk` (release) |
+  | livraison `v1.3.2` | `1.3.2` | `sms-forwarder-1.3.2.apk` (release) |
   | push sur `main` | `1.3.2-dev.<run>+<commit>` | `sms-forwarder-1.3.2-dev.<run>.apk` |
   | PR n° 11 | `1.3.2-pr.11.<run>+<commit>` | `sms-forwarder-1.3.2-pr.11.<run>.apk` |
 
-  Le CI calcule le suffixe (variable `VERSION_SUFFIX`, lue par `versionNameSuffix` dans `app/build.gradle`) ; un build local n’en a pas. Le `versionCode` ne change pas : la livraison s’installe toujours par-dessus un APK de test. Après chaque tag, monter `versionName` / `versionCode` sur `main` : `main` porte toujours la prochaine version. Les livraisons antérieures à la v1.4.1 étaient des branches `release/*`, remplacées par les tags `v1.1.2`, `v1.3.0`, `v1.3.1` et `v1.4.0`.
+  Le CI calcule le suffixe (variable `VERSION_SUFFIX`, lue par `versionNameSuffix` dans `app/build.gradle`) ; un build local n’en a pas. Le `versionCode` ne change pas : la livraison s’installe toujours par-dessus un APK de test. `main` porte toujours la prochaine version : la PR ouverte après chaque livraison la monte. Jusqu’à la v1.4.0, les livraisons étaient des branches `release/*`.
 - L’artefact porte le nom de l’APK sans `.apk`.
 
 ## Outil « SMS » de la console Miango (v1.2.0)
