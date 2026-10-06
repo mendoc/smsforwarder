@@ -1,0 +1,21 @@
+# Rubriques des notes de version générées par GitHub (Release d'un tag v*), d'après les
+# étiquettes des PR fusionnées depuis le tag précédent.
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: Nouveautés
+      labels:
+        - enhancement
+        - feature
+    - title: Corrections
+      labels:
+        - bug
+        - fix
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Autres changements
+      labels:
+        - "*"

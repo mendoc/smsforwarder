@@ -9,11 +9,12 @@ env:
 
 on:
 
-  # Livraisons (release/**) et builds d'intégration (main)
+  # Livraisons (tags v<versionName>, ex. v1.4.1) et builds d'intégration (main)
   push:
     branches:
       - 'main'
-      - 'release/**'
+    tags:
+      - 'v*'
 
   # Le développement se fait sur main via des PR : chaque PR compile l'APK (artefact joint)
   pull_request:
@@ -28,7 +29,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # contents: write pour publier les captures d'écran sur la branche screenshots/<branche>.
+    # contents: write pour publier les captures d'écran (branche screenshots/<branche>) et
+    # créer la Release GitHub d'un tag.
     permissions:
       contents: write
 
@@ -69,26 +71,43 @@ jobs:
             echo "::warning::Secret SIGNING_KEYSTORE_BASE64 absent : APK signé avec une clé de debug temporaire."
           fi
 
-      # Suffixe SemVer du versionName selon l'origine du build (lu par app/build.gradle) :
-      #   release/**  -> aucun (1.3.2)
-      #   PR          -> -pr.<PR>.<run>+<sha> (APK jetable)
-      #   main/manuel -> -dev.<run>+<sha> (build d'intégration)
-      # versionCode inchangé : la release s'installe toujours par-dessus un APK de test.
+      # Version et type de build selon l'origine (VERSION_SUFFIX lu par app/build.gradle) :
+      #   tag v*      -> aucun suffixe, APK release (livraison : 1.4.1)
+      #   PR          -> -pr.<PR>.<run>+<sha>, APK debug (jetable)
+      #   main/manuel -> -dev.<run>+<sha>, APK debug (build d'intégration)
+      # versionCode inchangé : la livraison s'installe toujours par-dessus un APK de test.
+      # Un tag doit valoir « v » + versionName : sinon le build échoue au lieu de livrer
+      # une version mal étiquetée.
       - name: Compute version suffix
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
+          version=$(sed -n 's/^[[:space:]]*versionName[[:space:]]*"\([^"]*\)".*/\1/p' ${{ env.main_project_module }}/build.gradle | head -n 1)
+          if [ -z "$version" ]; then echo "versionName introuvable dans ${{ env.main_project_module }}/build.gradle" >&2; exit 1; fi
+          echo "app_version=$version" >> $GITHUB_ENV
+          build_type=debug
           case "$GITHUB_REF" in
-            refs/heads/release/*) suffix="" ;;
+            refs/tags/*)
+              if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+                echo "::error::Le tag $GITHUB_REF_NAME ne correspond pas à versionName $version (attendu : v$version)."
+                exit 1
+              fi
+              if [ -z "$SIGNING_KEYSTORE_PATH" ]; then
+                echo "::error::Livraison impossible sans la clé de signature fixe (secret SIGNING_KEYSTORE_BASE64)."
+                exit 1
+              fi
+              suffix=""
+              build_type=release ;;
             *)
               if [ -n "$PR_NUMBER" ]; then pre="pr.${PR_NUMBER}.${GITHUB_RUN_NUMBER}"; else pre="dev.${GITHUB_RUN_NUMBER}"; fi
               suffix="-${pre}+${HEAD_SHA::7}" ;;
           esac
           echo "VERSION_SUFFIX=$suffix" >> $GITHUB_ENV
+          echo "build_type=$build_type" >> $GITHUB_ENV
           # Sans les métadonnées « +sha » dans le nom de fichier
           echo "apk_suffix=${suffix%%+*}" >> $GITHUB_ENV
-          echo "Suffixe de version : ${suffix:-(aucun, livraison)}"
+          echo "Version : $version${suffix} (APK $build_type)"
 
       # Run Build Project
       - name: Build gradle project
@@ -101,8 +120,8 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: ./gradlew build
 
-      # Create APK Debug
-      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
+      # APK debug (PR, main) ou release (tag), signé avec la même clé fixe
+      - name: Build apk ${{ env.build_type }} (APK) - ${{ env.main_project_module }} module
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
@@ -110,33 +129,46 @@ jobs:
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-        run: ./gradlew assembleDebug
+        run: |
+          if [ "$build_type" = release ]; then ./gradlew assembleRelease; else ./gradlew assembleDebug; fi
 
       # Renomme l'APK avec la version de l'application (versionName de app/build.gradle)
       - name: Rename APK with app version
         run: |
-          version=$(sed -n 's/^[[:space:]]*versionName[[:space:]]*"\([^"]*\)".*/\1/p' ${{ env.main_project_module }}/build.gradle | head -n 1)
-          if [ -z "$version" ]; then echo "versionName introuvable dans ${{ env.main_project_module }}/build.gradle" >&2; exit 1; fi
-          apk=$(ls ${{ env.main_project_module }}/build/outputs/apk/debug/*.apk | head -n 1)
+          version="$app_version"
+          apk=$(ls ${{ env.main_project_module }}/build/outputs/apk/$build_type/*.apk | head -n 1)
+          if [ -z "$apk" ]; then echo "Aucun APK $build_type produit." >&2; exit 1; fi
           mkdir -p dist
           cp "$apk" "dist/sms-forwarder-$version$apk_suffix.apk"
           echo "apk_name=sms-forwarder-$version$apk_suffix" >> $GITHUB_ENV
           ls -l dist
 
       # Upload Artifact Build : artefact sms-forwarder-<version><suffixe> contenant l'APK du même nom
-      - name: Upload APK Debug - ${{ env.repository_name }}
+      - name: Upload APK - ${{ env.repository_name }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.apk_name }}
           path: dist/${{ env.apk_name }}.apk
           if-no-files-found: error
 
-      # Envoi de l'APK sur Telegram pour les livraisons (release/**) et les lancements
+      # Release GitHub du tag : notes générées à partir des PR fusionnées depuis le tag
+      # précédent (rubriques dans .github/release.yml) et APK release joint.
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "dist/${apk_name}.apk" \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes \
+            --title "SMS Forwarder $app_version"
+          echo "Release $GITHUB_REF_NAME publiée avec dist/${apk_name}.apk"
+
+      # Envoi de l'APK sur Telegram pour les livraisons (tags v*) et les lancements
       # manuels, pas pour les PR ni les push sur main. Secrets TELEGRAM_BOT_TOKEN et TELEGRAM_CHAT_ID, à défaut
       # BOT_TOKEN et CHAT_ID (ceux déjà utilisés par l'app). Sans secret, l'étape est
       # ignorée avec un avertissement.
       - name: Send APK to Telegram
-        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/heads/release/')
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || secrets.BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || secrets.CHAT_ID }}
@@ -156,8 +188,9 @@ jobs:
       # Captures d'écran des tests Robolectric (app/build/screenshots, voir JournalScreenshotTest),
       # même si un test échoue : publiées seules sur la branche screenshots/<branche de la PR>,
       # réécrite à chaque run, pour les comparer à la maquette sans téléphone.
+      # Pas pour les tags : leurs captures sont celles du commit déjà publié sur main.
       - name: Publish screenshots
-        if: always()
+        if: always() && !startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}

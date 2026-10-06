@@ -16,7 +16,7 @@ android {
         targetSdk 33
         versionCode 141
         versionName "1.4.1"
-        // Suffixe SemVer fourni par le CI (-dev.N+sha sur main, -pr.P.N+sha en PR, rien en release)
+        // Suffixe SemVer fourni par le CI (-dev.N+sha sur main, -pr.P.N+sha en PR, rien pour un tag)
         versionNameSuffix System.getenv('VERSION_SUFFIX') ?: null
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -46,7 +46,10 @@ android {
         debug {
             if (signingKeystore) signingConfig signingConfigs.fixed
         }
+        // Livraisons (tags v*) : APK release signé avec la même clé que le debug, il met donc
+        // à jour un APK de test sans désinstallation et garde le même identifiant du téléphone.
         release {
+            if (signingKeystore) signingConfig signingConfigs.fixed
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
