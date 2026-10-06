@@ -37,7 +37,7 @@ import java.util.TimeZone;
 /** Accueil avec deux SIM (Am6 active, Moov désactivée) et un envoi Telegram en attente. */
 @RunWith(RobolectricTestRunner.class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = 33, qualifiers = "w390dp-h1160dp-port-xhdpi")
+@Config(sdk = 33, qualifiers = "w390dp-h1200dp-port-xhdpi")
 public class HomeScreenshotTest {
     private TimeZone previousZone;
 

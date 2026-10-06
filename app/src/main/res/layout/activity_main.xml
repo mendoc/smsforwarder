@@ -421,6 +421,15 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Politique de synchronisation (SyncScheduler, SyncPlan.RETRY_MAX_AGE_MS) -->
+                <TextView
+                    style="@style/Refonte.Text.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:lineSpacingExtra="2sp"
+                    android:text="@string/home_sync_policy" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/home_sync_now"
                     style="@style/Refonte.Button"
