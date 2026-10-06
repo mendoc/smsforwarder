@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Styles de la refonte (maquette Claude Design « SMS Forwarder — refonte ») : tailles en sp
+     reprises des px de la maquette (écran de 390 px de large = 390 dp). -->
+<resources>
+    <style name="Refonte" />
+
+    <style name="Refonte.Text">
+        <item name="android:fontFamily">@font/plex_sans_regular</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textSize">15sp</item>
+        <!-- Hauteur de ligne CSS « normal » (ascent + descent) : sans le padding de police
+             (≈ 0,1 em par texte), les écrans dérivaient de ~60 dp par rapport à la maquette. -->
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- « SMS FORWARDER », « TÉLÉPHONE » : petites capitales espacées -->
+    <style name="Refonte.Text.Overline">
+        <item name="android:fontFamily">@font/plex_sans_semibold</item>
+        <item name="android:textColor">@color/ink_2</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="Refonte.Text.Section" parent="Refonte.Text.Overline">
+        <item name="android:letterSpacing">0.06</item>
+    </style>
+
+    <style name="Refonte.Text.H1">
+        <item name="android:fontFamily">@font/plex_sans_bold</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="Refonte.Text.H2">
+        <item name="android:fontFamily">@font/plex_sans_bold</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="Refonte.Text.Title">
+        <item name="android:fontFamily">@font/plex_sans_semibold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Refonte.Text.Body">
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">1sp</item>
+    </style>
+
+    <style name="Refonte.Text.Caption">
+        <item name="android:textColor">@color/ink_2</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingExtra">1sp</item>
+    </style>
+
+    <style name="Refonte.Text.Mono">
+        <item name="android:fontFamily">@font/plex_mono_regular</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Refonte.Text.Stat">
+        <item name="android:fontFamily">@font/plex_mono_medium</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="Refonte.Text.StatLabel">
+        <item name="android:textColor">@color/hero_text_2</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineSpacingExtra">0sp</item>
+    </style>
+
+    <!-- Bouton plein vert, 52 dp, coins 14 dp -->
+    <style name="Refonte.Button" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:minHeight">52dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:fontFamily">@font/plex_sans_semibold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/pine</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconSize">18dp</item>
+        <item name="iconTint">@color/white</item>
+    </style>
+
+    <style name="Refonte.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:minHeight">52dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:fontFamily">@font/plex_sans_semibold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="backgroundTint">@color/surface</item>
+        <item name="strokeColor">@color/button_line</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="rippleColor">@color/line_soft</item>
+    </style>
+
+    <!-- Petit bouton « Tester » : 36 dp, coins 10 dp -->
+    <style name="Refonte.Button.Small" parent="Refonte.Button.Outline">
+        <item name="android:minHeight">36dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="cornerRadius">10dp</item>
+    </style>
+
+    <!-- Champ de saisie bordé, 48 dp -->
+    <style name="Refonte.Field">
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:fontFamily">@font/plex_sans_regular</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textColorHint">@color/ink_2</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Carte blanche bordée, coins 20 dp -->
+    <style name="Refonte.Card">
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+    </style>
+</resources>

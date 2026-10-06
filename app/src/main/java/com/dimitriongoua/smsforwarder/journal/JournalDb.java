@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class JournalDb extends SQLiteOpenHelper {
     private static final String NAME = "journal.db";
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     public static final long RETENTION_MS = 30L * 24 * 60 * 60 * 1000;
 
     private static JournalDb instance;
@@ -66,13 +66,15 @@ public class JournalDb extends SQLiteOpenHelper {
                 + "last_attempt_at INTEGER NOT NULL DEFAULT 0,"
                 + "last_error TEXT,"
                 + "via TEXT,"
+                + "http_code INTEGER NOT NULL DEFAULT 0,"
                 + "PRIMARY KEY (sms_id, dest_key))");
         db.execSQL("CREATE INDEX delivery_status ON delivery (status)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Première version du schéma.
+        // v2 : code HTTP de la dernière réponse (Détail d'un SMS).
+        if (oldVersion < 2) db.execSQL("ALTER TABLE delivery ADD COLUMN http_code INTEGER NOT NULL DEFAULT 0");
     }
 
     /**
@@ -174,10 +176,10 @@ public class JournalDb extends SQLiteOpenHelper {
     public void recordAttempt(long smsId, String destinationKey, SendOutcome outcome, long now, String via) {
         DeliveryStatus status = DeliveryStatus.from(outcome);
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE delivery SET attempts = attempts + 1, status = ?, last_attempt_at = ?, last_error = ?, "
+        db.execSQL("UPDATE delivery SET attempts = attempts + 1, status = ?, last_attempt_at = ?, last_error = ?, http_code = ?, "
                         + "via = CASE WHEN ? = 'sent' THEN ? ELSE via END "
                         + "WHERE sms_id = ? AND dest_key = ?",
-                new Object[]{status.code, now, outcome.getError(), status.code, via, smsId, destinationKey});
+                new Object[]{status.code, now, outcome.getError(), outcome.getHttpCode(), status.code, via, smsId, destinationKey});
     }
 
     /** Change le statut sans compter d'essai (destination supprimée, abandon…). */
@@ -229,6 +231,68 @@ public class JournalDb extends SQLiteOpenHelper {
         return sims;
     }
 
+    /** Un SMS du journal avec ses envois, null s'il n'existe plus (purgé). */
+    public JournalEntry entry(long id) {
+        List<JournalEntry> found = entries("SELECT * FROM sms WHERE id = ?", new String[]{String.valueOf(id)});
+        return found.isEmpty() ? null : found.get(0);
+    }
+
+    /** Chiffres de l'Accueil ; {@code since} : début du jour local. */
+    public HomeStats homeStats(long since) {
+        SQLiteDatabase db = getReadableDatabase();
+        HomeStats stats = new HomeStats();
+        String day = String.valueOf(since);
+        String sent = "id IN (SELECT sms_id FROM delivery WHERE status = '" + DeliveryStatus.SENT.code + "')";
+        try (Cursor cursor = db.rawQuery("SELECT subscription_id, COUNT(*) FROM sms WHERE received_at >= ? AND "
+                + sent + " GROUP BY subscription_id", new String[]{day})) {
+            while (cursor.moveToNext()) {
+                stats.relayedTodayBySim.put(cursor.getInt(0), cursor.getInt(1));
+                stats.relayedToday += cursor.getInt(1);
+            }
+        }
+        try (Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM delivery JOIN sms ON sms.id = delivery.sms_id "
+                + "WHERE sms.received_at >= ? AND delivery.status = ?", new String[]{day, DeliveryStatus.FAILED.code})) {
+            if (cursor.moveToFirst()) stats.failedToday = cursor.getInt(0);
+        }
+        stats.open = countOpen();
+        try (Cursor cursor = db.rawQuery("SELECT dest_key, MAX(dest_label) FROM delivery WHERE status IN (?, ?) "
+                + "GROUP BY dest_key ORDER BY dest_key", new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            while (cursor.moveToNext()) {
+                stats.openDestinationKeys.add(cursor.getString(0));
+                stats.openDestinations.add(cursor.getString(1));
+            }
+        }
+        try (Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT sms_id), MAX(sms_id) FROM delivery WHERE status IN (?, ?)",
+                new String[]{DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            if (cursor.moveToFirst()) {
+                stats.openSms = cursor.getInt(0);
+                stats.openSmsId = cursor.isNull(1) ? -1 : cursor.getLong(1);
+            }
+        }
+        try (Cursor cursor = db.rawQuery("SELECT subscription_id, MAX(received_at) FROM sms GROUP BY subscription_id", null)) {
+            while (cursor.moveToNext()) stats.lastReceivedBySim.put(cursor.getInt(0), cursor.getLong(1));
+        }
+        List<JournalEntry> last = entries("SELECT * FROM sms WHERE " + sent
+                + " ORDER BY received_at DESC, id DESC LIMIT 1", null);
+        stats.lastRelayed = last.isEmpty() ? null : last.get(0);
+        return stats;
+    }
+
+    /**
+     * Par destination (clé du journal) : {dernier envoi réussi, envois à faire}, pour l'écran
+     * Destinations.
+     */
+    public Map<String, long[]> destinationStats() {
+        Map<String, long[]> stats = new LinkedHashMap<>();
+        try (Cursor cursor = getReadableDatabase().rawQuery("SELECT dest_key, "
+                + "MAX(CASE WHEN status = ? THEN last_attempt_at ELSE 0 END), "
+                + "SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) FROM delivery GROUP BY dest_key",
+                new String[]{DeliveryStatus.SENT.code, DeliveryStatus.PENDING.code, DeliveryStatus.RETRY.code})) {
+            while (cursor.moveToNext()) stats.put(cursor.getString(0), new long[]{cursor.getLong(1), cursor.getLong(2)});
+        }
+        return stats;
+    }
+
     /** Tests uniquement : ferme l'instance unique pour repartir d'une base neuve. */
     public static synchronized void resetForTests() {
         if (instance != null) instance.close();
@@ -276,7 +340,8 @@ public class JournalDb extends SQLiteOpenHelper {
                         cursor.getInt(cursor.getColumnIndexOrThrow("attempts")),
                         cursor.getLong(cursor.getColumnIndexOrThrow("last_attempt_at")),
                         cursor.getString(cursor.getColumnIndexOrThrow("last_error")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("via"))));
+                        cursor.getString(cursor.getColumnIndexOrThrow("via")),
+                        cursor.getInt(cursor.getColumnIndexOrThrow("http_code"))));
             }
         }
         return new ArrayList<>(byId.values());

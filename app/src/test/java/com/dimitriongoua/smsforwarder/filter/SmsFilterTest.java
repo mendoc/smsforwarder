@@ -75,4 +75,12 @@ public class SmsFilterTest {
         assertEquals("!", errors.get(1).getRule());
         assertTrue(SmsFilter.validate(Arrays.asList("body:ok", "!from:^x$")).isEmpty());
     }
+
+    @Test
+    public void raisonDuRelais() {
+        SmsFilter filter = SmsFilter.fromSettings(java.util.Arrays.asList("AirtelMoney"), java.util.Arrays.asList("body:(?i)paypal"));
+        assertEquals("AirtelMoney", filter.reason("airtelmoney", "Votre solde"));
+        assertEquals("body:(?i)paypal", filter.reason("38643", "Code PayPal"));
+        assertEquals(null, filter.reason("Inconnu", "Bonjour"));
+    }
 }

@@ -1,73 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Destinations (maquette « Destinations ») : une carte par destination, ajout d'une URL. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/paper"
+    android:orientation="vertical"
     tools:context=".activity.DestinationsActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <TextView
-            style="@style/SettingsTitle"
-            android:layout_marginTop="0dp"
-            android:text="@string/urls_section" />
-
-        <TextView
-            style="@style/SettingsHelp"
-            android:text="@string/urls_help" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/url_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="28dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="24dp">
 
-        <Button
-            android:id="@+id/add_url"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/url_add" />
+            <TextView
+                style="@style/Refonte.Text.H1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/destinations_title" />
 
-        <TextView
-            style="@style/SettingsTitle"
-            android:text="@string/telegram_section" />
+            <TextView
+                style="@style/Refonte.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/destinations_subtitle"
+                android:textSize="14sp" />
 
-        <CheckBox
-            android:id="@+id/telegram_enabled"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/destination_enabled" />
+            <LinearLayout
+                android:id="@+id/dest_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
 
-        <TextView
-            android:id="@+id/telegram_token_status"
-            style="@style/SettingsHelp" />
+            <LinearLayout
+                android:id="@+id/dest_add"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_dashed_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/telegram_token"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="none"
-            android:hint="@string/telegram_token_hint"
-            android:inputType="textPassword" />
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_plus"
+                    app:tint="@color/ink" />
 
-        <EditText
-            android:id="@+id/telegram_chat_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="none"
-            android:hint="@string/telegram_chat_hint"
-            android:inputType="text" />
+                <TextView
+                    style="@style/Refonte.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/plex_sans_semibold"
+                    android:text="@string/url_add" />
+            </LinearLayout>
 
-        <Button
-            android:id="@+id/save_telegram"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/save" />
-    </LinearLayout>
-</ScrollView>
+            <TextView
+                style="@style/Refonte.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/destinations_help" />
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/view_tab_bar" />
+</LinearLayout>

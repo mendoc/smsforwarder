@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modifier une destination (maquette « Modifier une destination ») : titre, URL, en-tête, état. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/paper"
+    android:orientation="vertical"
+    tools:context=".activity.DestinationEditActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/edit_back"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/url_back"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:id="@+id/edit_heading"
+            style="@style/Refonte.Text.H2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:accessibilityHeading="true"
+            android:text="@string/url_edit_heading" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/edit_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="28dp">
+
+            <TextView
+                style="@style/Refonte.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:fontFamily="@font/plex_sans_semibold"
+                android:labelFor="@id/edit_title_field"
+                android:text="@string/url_title_label"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/edit_title_field"
+                style="@style/Refonte.Field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:autofillHints=""
+                android:background="@drawable/bg_field_large"
+                android:hint="@string/url_title_hint"
+                android:importantForAutofill="no"
+                android:inputType="textCapSentences"
+                android:maxLength="60"
+                android:minHeight="52dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:singleLine="true" />
+
+            <TextView
+                style="@style/Refonte.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/url_title_help" />
+
+            <TextView
+                style="@style/Refonte.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/plex_sans_semibold"
+                android:labelFor="@id/edit_url_field"
+                android:text="@string/url_label"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/edit_url_field"
+                style="@style/Refonte.Field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:autofillHints=""
+                android:background="@drawable/bg_field_large"
+                android:fontFamily="@font/plex_mono_regular"
+                android:hint="@string/url_hint"
+                android:importantForAutofill="no"
+                android:inputType="textUri|textNoSuggestions"
+                android:minHeight="52dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:singleLine="true"
+                android:textSize="14sp" />
+
+            <TextView
+                style="@style/Refonte.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/url_help" />
+
+            <LinearLayout
+                style="@style/Refonte.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
+
+                <TextView
+                    style="@style/Refonte.Text.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/url_header_section" />
+
+                <TextView
+                    style="@style/Refonte.Text.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/url_header_section_help" />
+
+                <TextView
+                    style="@style/Refonte.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:labelFor="@id/edit_header_name"
+                    android:text="@string/url_header_name_label"
+                    android:textColor="@color/ink_2"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/edit_header_name"
+                    style="@style/Refonte.Field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:autofillHints=""
+                    android:background="@drawable/bg_field"
+                    android:fontFamily="@font/plex_mono_regular"
+                    android:hint="@string/url_header_name_example"
+                    android:importantForAutofill="no"
+                    android:inputType="text|textNoSuggestions"
+                    android:minHeight="48dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:singleLine="true"
+                    android:textSize="14sp" />
+
+                <TextView
+                    style="@style/Refonte.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:labelFor="@id/edit_header_value"
+                    android:text="@string/url_header_value_label"
+                    android:textColor="@color/ink_2"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/edit_header_value"
+                    style="@style/Refonte.Field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:autofillHints=""
+                    android:background="@drawable/bg_field"
+                    android:fontFamily="@font/plex_mono_regular"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:minHeight="48dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:singleLine="true"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/edit_header_keep"
+                    style="@style/Refonte.Text.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/url_header_value_keep_help" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/edit_enabled_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_card"
+                android:baselineAligned="false"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/Refonte.Text.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/url_enabled_title" />
+
+                    <TextView
+                        style="@style/Refonte.Text.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/url_enabled_help" />
+                </LinearLayout>
+
+                <com.dimitriongoua.smsforwarder.widget.Toggle
+                    android:id="@+id/edit_enabled"
+                    android:layout_width="52dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="12dp"
+                    android:contentDescription="@string/url_enabled_title" />
+            </LinearLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="24dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/edit_save"
+                style="@style/Refonte.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/save" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/edit_delete"
+                style="@style/Refonte.Button.Outline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/url_delete_destination"
+                android:textColor="@color/red_ink"
+                app:strokeColor="@color/red_line" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

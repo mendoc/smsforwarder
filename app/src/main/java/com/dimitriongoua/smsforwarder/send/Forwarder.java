@@ -105,6 +105,33 @@ public class Forwarder {
         return null;
     }
 
+    /**
+     * Envoi de test du bouton « Tester », même désactivée : un message de test pour Telegram,
+     * une requête {@code {"test":true}} pour une URL (rejetée par Miango avant toute écriture :
+     * seule la réponse compte). Null si la destination n'existe pas.
+     */
+    public Target testTarget(String key) {
+        if (TelegramDestination.KEY.equals(key)) {
+            TelegramDestination telegram = store.getTelegram();
+            JSONObject body = new JSONObject();
+            try {
+                body.put("chat_id", telegram.getChatId());
+                body.put("text", "Test de SMS Forwarder depuis « " + Settings.with(context).getDeviceName() + " »");
+            } catch (JSONException e) {
+                throw new IllegalStateException(e);
+            }
+            String url = EndPoints.BOT_URL.replace("{BOT_TOKEN}", telegram.getBotToken());
+            return new Target(TelegramDestination.KEY, TelegramDestination.LABEL, url, body.toString(), null);
+        }
+        for (UrlDestination url : store.getUrls()) {
+            if (!url.getKey().equals(key)) continue;
+            Map<String, String> headers = new HashMap<>();
+            if (url.hasHeader()) headers.put(url.getHeaderName(), url.getHeaderValue());
+            return new Target(url.getKey(), url.getLabel(), url.getUrl(), "{\"test\":true}", headers);
+        }
+        return null;
+    }
+
     private Target urlTarget(UrlDestination destination, SMS sms) {
         Settings settings = Settings.with(context);
         JSONObject body = sms.toInboxJSONObject(

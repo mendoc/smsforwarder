@@ -13,6 +13,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!-- Synchronisation des SMS manqués après un redémarrage du téléphone. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Écran Autorisations : demander directement « Batterie sans restriction ». -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:allowBackup="true"
@@ -56,7 +58,7 @@
         <activity
             android:name=".activity.DestinationsActivity"
             android:exported="false"
-            android:parentActivityName=".activity.MainActivity" />
+            android:theme="@style/Theme.SmsForwarder.Refonte" />
 
         <activity
             android:name=".activity.JournalActivity"
@@ -64,8 +66,42 @@
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />
 
+        <!-- adjustResize : avec le clavier ouvert, l'écran rétrécit et reste défilable jusqu'au champ. -->
+        <activity
+            android:name=".activity.ReglagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmsForwarder.Refonte"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activity.DestinationEditActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.DestinationsActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activity.DetailActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.JournalActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte" />
+
+        <activity
+            android:name=".activity.AutorisationsActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte" />
+
+        <activity
+            android:name=".activity.SimActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte"
+            android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".activity.MainActivity"
+            android:theme="@style/Theme.SmsForwarder.Refonte"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

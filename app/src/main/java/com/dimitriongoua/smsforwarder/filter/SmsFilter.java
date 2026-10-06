@@ -73,6 +73,23 @@ public final class SmsFilter {
         return false;
     }
 
+    /**
+     * Ce qui a fait relayer le SMS : l'expéditeur autorisé tel qu'il est saisi, sinon la
+     * première règle d'inclusion qui correspond ; null si le filtre ne le relaierait pas.
+     */
+    public String reason(String from, String body) {
+        if (!accepts(from, body)) return null;
+        if (from != null) {
+            for (String allowed : allowedSenders) {
+                if (allowed.equalsIgnoreCase(from.trim())) return allowed;
+            }
+        }
+        for (FilterRule rule : rules) {
+            if (!rule.isExclusion() && rule.matches(from, body)) return rule.getSource();
+        }
+        return null;
+    }
+
     public boolean isAllowedSender(String from) {
         if (from == null) return false;
         String address = from.trim();

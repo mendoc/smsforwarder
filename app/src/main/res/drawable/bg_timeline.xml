@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Trait vertical de 2 dp à gauche de la chronologie d'un envoi en attente. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="start|fill_vertical" android:width="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/timeline" />
+        </shape>
+    </item>
+</layer-list>
