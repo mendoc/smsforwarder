@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Thème sombre (maquette « Thème sombre — palette ») : mêmes noms que values/colors.xml.
+     Fond teinté de vert, profondeur par la clarté, vert pin -> menthe ; textes >= 7:1. -->
+<resources>
+    <color name="paper">#FF0E1412</color>
+    <color name="surface">#FF161E1B</color>
+    <color name="ink">#FFE8EDEA</color>
+    <color name="ink_2">#FF9DABA4</color>
+    <color name="ink_body">#FFC9D3CE</color>
+    <color name="line">#FF26302C</color>
+    <color name="line_soft">#FF1E2724</color>
+    <color name="pine">#FF7FD8B6</color>
+    <color name="pine_soft">#FF17352C</color>
+    <color name="amber_ink">#FFF2C38A</color>
+    <color name="amber_soft">#FF3A2A12</color>
+    <color name="amber_line">#FF6B4E22</color>
+    <color name="red_ink">#FFF2A097</color>
+    <color name="red_soft">#FF3D1C19</color>
+    <color name="blue_ink">#FF9EC2F2</color>
+    <color name="blue_soft">#FF172638</color>
+    <color name="hero">#FF123A31</color>
+    <color name="field_line">#FF3A4641</color>
+    <color name="button_line">#FF34403B</color>
+    <color name="dash">#FF5E6B65</color>
+    <color name="red_line">#FF7A3A33</color>
+    <color name="red_text">#FFF5B3AB</color>
+    <color name="toggle_off">#FF3A4641</color>
+    <color name="timeline">#FF6B4E22</color>
+    <color name="open_row">#FF1F1A12</color>
+    <color name="primary">#FF8FE0C2</color>
+    <color name="on_primary">#FF0B201A</color>
+    <color name="toggle_thumb_on">#FF0B201A</color>
+    <color name="toggle_thumb_off">#FF9DABA4</color>
+    <color name="code_bg">#FF0A1714</color>
+</resources>

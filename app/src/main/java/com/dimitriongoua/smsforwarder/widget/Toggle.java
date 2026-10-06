@@ -27,6 +27,8 @@ public class Toggle extends CompoundButton {
     private final float density;
     private final int onColor;
     private final int offColor;
+    private final int thumbOnColor;
+    private final int thumbOffColor;
 
     public Toggle(Context context) {
         this(context, null);
@@ -35,8 +37,10 @@ public class Toggle extends CompoundButton {
     public Toggle(Context context, AttributeSet attrs) {
         super(context, attrs);
         density = getResources().getDisplayMetrics().density;
-        onColor = ContextCompat.getColor(context, R.color.pine);
+        onColor = ContextCompat.getColor(context, R.color.primary);
         offColor = ContextCompat.getColor(context, R.color.toggle_off);
+        thumbOnColor = ContextCompat.getColor(context, R.color.toggle_thumb_on);
+        thumbOffColor = ContextCompat.getColor(context, R.color.toggle_thumb_off);
         setBackground(null);
         setButtonDrawable(null);
         setClickable(true);
@@ -64,7 +68,7 @@ public class Toggle extends CompoundButton {
         float inset = THUMB_INSET_DP * density;
         float radius = height / 2f - inset;
         float cx = isChecked() ? track.right - inset - radius : track.left + inset + radius;
-        paint.setColor(0xFFFFFFFF);
+        paint.setColor(isChecked() ? thumbOnColor : thumbOffColor);
         canvas.drawCircle(cx, track.centerY(), radius, paint);
     }
 

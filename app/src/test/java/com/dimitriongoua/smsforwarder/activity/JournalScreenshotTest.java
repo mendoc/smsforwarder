@@ -1,15 +1,10 @@
 package com.dimitriongoua.smsforwarder.activity;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.Looper;
-import android.util.DisplayMetrics;
-import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -30,8 +25,6 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.GraphicsMode;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
@@ -177,17 +170,6 @@ public class JournalScreenshotTest {
     }
 
     private static void capture(Activity activity, String name) throws IOException {
-        DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
-        View root = activity.getWindow().getDecorView();
-        root.measure(View.MeasureSpec.makeMeasureSpec(metrics.widthPixels, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(metrics.heightPixels, View.MeasureSpec.EXACTLY));
-        root.layout(0, 0, metrics.widthPixels, metrics.heightPixels);
-        Bitmap bitmap = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.ARGB_8888);
-        root.draw(new Canvas(bitmap));
-        File dir = new File("build/screenshots");
-        assertTrue(dir.isDirectory() || dir.mkdirs());
-        try (FileOutputStream out = new FileOutputStream(new File(dir, name + ".png"))) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-        }
+        Screens.capture(activity, name);
     }
 }
