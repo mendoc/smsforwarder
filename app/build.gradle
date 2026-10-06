@@ -14,8 +14,8 @@ android {
         applicationId "com.dimitriongoua.smsforwarder"
         minSdk 24
         targetSdk 33
-        versionCode 140
-        versionName "1.4.0"
+        versionCode 141
+        versionName "1.4.1"
         // Suffixe SemVer fourni par le CI (-dev.N+sha sur main, -pr.P.N+sha en PR, rien en release)
         versionNameSuffix System.getenv('VERSION_SUFFIX') ?: null
 
