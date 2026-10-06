@@ -37,4 +37,10 @@
     <color name="toggle_off">#FFC9CEC7</color>
     <color name="timeline">#FFEBD3AE</color>
     <color name="open_row">#FFFFFAF1</color>
+    <!-- Rôles qui changent de teinte en thème sombre (values-night/colors.xml) -->
+    <color name="primary">#FF0D5C4A</color>
+    <color name="on_primary">#FFFFFFFF</color>
+    <color name="toggle_thumb_on">#FFFFFFFF</color>
+    <color name="toggle_thumb_off">#FFFFFFFF</color>
+    <color name="code_bg">#FF10241F</color>
 </resources>

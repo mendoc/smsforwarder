@@ -6,6 +6,7 @@ import static org.robolectric.Shadows.shadowOf;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Looper;
@@ -137,8 +138,13 @@ final class Screens {
         save(bitmap, name);
     }
 
-    /** Écrit {@code build/screenshots/<name>.png}, publié par le CI. */
+    /**
+     * Écrit {@code build/screenshots/<name>.png}, publié par le CI ; en thème sombre
+     * (qualificatif {@code night}), {@code <name>-sombre.png}.
+     */
     static void save(Bitmap bitmap, String name) throws IOException {
+        int night = app().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (night == Configuration.UI_MODE_NIGHT_YES) name += "-sombre";
         File dir = new File("build/screenshots");
         assertTrue(dir.isDirectory() || dir.mkdirs());
         try (FileOutputStream out = new FileOutputStream(new File(dir, name + ".png"))) {
