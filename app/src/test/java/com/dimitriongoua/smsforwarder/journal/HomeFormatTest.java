@@ -60,7 +60,6 @@ public class HomeFormatTest {
         assertEquals("14:21", HomeFormat.syncTime(NOW - 5 * MIN, NOW, LIBREVILLE));
         assertEquals("04/10 14:26", HomeFormat.syncTime(NOW - 24 * HOUR, NOW, LIBREVILLE));
         assertEquals("—", HomeFormat.syncTime(0, NOW, LIBREVILLE));
-        assertEquals("a-3f9c…e1d0", HomeFormat.shortId("a-3f9c0000000000000000000000e1d0"));
         assertEquals("1 autorisation manquante", HomeFormat.missingPermissions(1));
         assertEquals("2 règles", HomeFormat.rules(2));
     }

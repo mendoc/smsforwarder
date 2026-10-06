@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Réglages (maquette « Réglages ») : nom et identifiant du téléphone, expéditeurs autorisés
+ * Réglages (maquette « Réglages ») : nom du téléphone, expéditeurs autorisés
  * en étiquettes, règles avancées, autorisations et version. Enregistré par le bouton
  * « Enregistrer » ; une règle invalide bloque tout l'enregistrement.
  */
@@ -52,7 +52,6 @@ public class ReglagesActivity extends AppCompatActivity {
 
         deviceName = findViewById(R.id.settings_device_name);
         deviceName.setText(settings.getDeviceName());
-        ((TextView) findViewById(R.id.settings_device_id)).setText(HomeFormat.shortId(settings.getDeviceId()));
 
         sendersGroup = findViewById(R.id.settings_senders);
         senders.addAll(settings.getAllowedSenders());

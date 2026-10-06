@@ -82,12 +82,6 @@ public final class HomeFormat {
         return format("dd/MM", millis, zone) + " " + JournalFormat.time(millis, zone);
     }
 
-    /** Identifiant du téléphone raccourci pour l'affichage : « a-3f9c…e1d0 ». */
-    public static String shortId(String id) {
-        if (id == null) return "";
-        return id.length() <= 12 ? id : id.substring(0, 6) + "…" + id.substring(id.length() - 4);
-    }
-
     /** « 1 autorisation manquante », « 2 autorisations manquantes ». */
     public static String missingPermissions(int missing) {
         return missing + (missing > 1 ? " autorisations manquantes" : " autorisation manquante");
