@@ -1,19 +1,19 @@
 SMS Forwarder est une application mobile permettant de transférer les SMS reçus d’un téléphone vers une autre destination.
 
 ## Flux de travail
-- Le développement se fait sur `main`, par des PR. Chaque PR vers `main` compile l’APK de debug et le joint en artefact (GitHub Actions). Chaque push sur `main` produit aussi un APK d’intégration.
-- Pour chaque livraison, une branche `release/x.y.z` est créée depuis `main` : le push sur `release/**` produit l’APK.
+- Le développement se fait sur `main`, par des PR. Chaque PR vers `main` compile l’APK de debug et le joint en artefact (GitHub Actions). Chaque push sur `main` produit aussi un APK d’intégration (debug).
+- Livraison : onglet Actions, workflow « Generated APK AAB », « Run workflow » sur `main` en cochant **livrer**. Le run vérifie que `v<versionName>` n’existe pas encore et que la clé de signature fixe est présente, construit l’APK **release** signé avec la même clé que les APK de debug (il les met donc à jour sans désinstallation), crée le tag `v<versionName>` sur le commit de `main`, puis la Release GitHub avec l’APK et des notes générées à partir des PR fusionnées depuis le tag précédent (rubriques selon les étiquettes des PR : `.github/release.yml`), envoie l’APK sur Telegram et ouvre la PR `version/<suivante>` qui passe `main` à la version suivante (correctif + 1, `versionCode` + 1). Cette PR, ouverte par le jeton du workflow, ne lance pas le CI ; si le dépôt n’autorise pas les workflows à ouvrir des PR (Settings → Actions → General → « Allow GitHub Actions to create and approve pull requests »), la branche est poussée et un avertissement donne le lien pour l’ouvrir. Pour une version mineure ou majeure, monter `versionName` / `versionCode` par une PR avant de livrer. Correctif sur une ancienne version : seulement dans ce cas, créer une branche depuis son tag.
 - Le workflow peut aussi être lancé à la main (onglet Actions).
-- Pour les livraisons (`release/**`) et les lancements manuels, l’APK est aussi envoyé sur Telegram (secrets `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`, à défaut `BOT_TOKEN` / `CHAT_ID`), avec la légende « SMS Forwarder <version> · <branche> · <commit> ».
+- Pour les livraisons et les lancements manuels, l’APK est aussi envoyé sur Telegram (secrets `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`, à défaut `BOT_TOKEN` / `CHAT_ID`), avec la légende « SMS Forwarder <version> · <tag ou branche> · <commit> ».
 - Version affichée selon l’origine du build (SemVer : suffixe de pré-version, puis `+commit` en métadonnées) :
 
   | Origine | `versionName` | APK |
   |---|---|---|
-  | `release/1.3.2` | `1.3.2` | `sms-forwarder-1.3.2.apk` |
+  | livraison `v1.3.2` | `1.3.2` | `sms-forwarder-1.3.2.apk` (release) |
   | push sur `main` | `1.3.2-dev.<run>+<commit>` | `sms-forwarder-1.3.2-dev.<run>.apk` |
   | PR n° 11 | `1.3.2-pr.11.<run>+<commit>` | `sms-forwarder-1.3.2-pr.11.<run>.apk` |
 
-  Le CI calcule le suffixe (variable `VERSION_SUFFIX`, lue par `versionNameSuffix` dans `app/build.gradle`) ; un build local n’en a pas. Le `versionCode` ne change pas : la livraison s’installe toujours par-dessus un APK de test. Après chaque livraison, monter `versionName` / `versionCode` sur `main` : `main` porte toujours la prochaine version.
+  Le CI calcule le suffixe (variable `VERSION_SUFFIX`, lue par `versionNameSuffix` dans `app/build.gradle`) ; un build local n’en a pas. Le `versionCode` ne change pas : la livraison s’installe toujours par-dessus un APK de test. `main` porte toujours la prochaine version : la PR ouverte après chaque livraison la monte. Jusqu’à la v1.4.0, les livraisons étaient des branches `release/*`.
 - L’artefact porte le nom de l’APK sans `.apk`.
 
 ## Outil « SMS » de la console Miango (v1.2.0)
